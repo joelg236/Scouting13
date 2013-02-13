@@ -91,6 +91,7 @@ public class TeamMatch implements Serializable {
 
     public void undo() {
         lastActions.get(currentAction).undo();
+        lastActions.remove(currentAction);
         currentAction--;
     }
 
