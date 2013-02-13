@@ -27,6 +27,9 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.UnsupportedLookAndFeelException;
 
 public class Scouting extends JFrame {
 
@@ -37,6 +40,15 @@ public class Scouting extends JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
+                try {
+                    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                        if ("Nimbus".equals(info.getName())) {
+                            UIManager.setLookAndFeel(info.getClassName());
+                            break;
+                        }
+                    }
+                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+                }
                 s = new Scouting();
                 s.setSize(1115, 430);
                 s.setLocationRelativeTo(null);
