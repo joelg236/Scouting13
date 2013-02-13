@@ -30,6 +30,7 @@ import javax.swing.SwingUtilities;
 
 public class Scouting extends JFrame {
 
+    static final long serialVersionUID = 81L;
     private static Scouting s;
 
     public static void main(String[] args) {
@@ -68,13 +69,15 @@ public class Scouting extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 OpenDialog o = new OpenDialog("Open File", "Open", JFileChooser.FILES_ONLY, null) {
+                    static final long serialVersionUID = 81L;
+
                     @Override
                     public void setFile(String path) {
                         try {
                             File file = new File(path);
                             ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file));
                             matchesDisplay.addMatch((TeamMatch) inputStream.readObject());
-                        } catch (Exception ex) {
+                        } catch (IOException | ClassNotFoundException ex) {
                             JOptionPane.showMessageDialog(rootPane, "Could not load file. Make sure it is the correct file.");
                         }
                     }
@@ -90,6 +93,8 @@ public class Scouting extends JFrame {
     }
 
     private class NewMatchButton extends JButton {
+
+        static final long serialVersionUID = 81L;
 
         public NewMatchButton() {
             super("New Match");
@@ -107,6 +112,8 @@ public class Scouting extends JFrame {
             }
 
             private class NewMatchDialog extends JDialog {
+
+                static final long serialVersionUID = 81L;
 
                 public NewMatchDialog() {
                     super(s, "New Match");
@@ -185,7 +192,8 @@ public class Scouting extends JFrame {
 
     private class MatchesDisplay extends JTabbedPane {
 
-        private ArrayList tabs = new ArrayList();
+        static final long serialVersionUID = 81L;
+        private ArrayList<String> tabs = new ArrayList<>();
 
         public MatchesDisplay() {
             super(TOP, WRAP_TAB_LAYOUT);
@@ -211,6 +219,7 @@ public class Scouting extends JFrame {
 
         private class MatchDisplay extends JPanel {
 
+            static final long serialVersionUID = 81L;
             private final TeamMatch match;
 
             public MatchDisplay(final TeamMatch match) {
@@ -333,6 +342,8 @@ public class Scouting extends JFrame {
             }
 
             private class StartingPositions extends JPanel {
+
+                static final long serialVersionUID = 81L;
 
                 public StartingPositions() {
                     setRootPaneCheckingEnabled(true);

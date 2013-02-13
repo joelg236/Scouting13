@@ -10,6 +10,7 @@ import javax.swing.JTextField;
 
 public class TeamMatch implements Serializable {
 
+    static final long serialVersionUID = 81L;
     public static final String OFF = "Offensive", DEF = "Defensive";
     public static final String CENT_FRONT = "Centre front", CENT_BACK = "Centre back",
             LEFT_FRONT = "Left front", RIGHT_FRONT = "Right front", LEFT = "Left",
@@ -114,6 +115,8 @@ public class TeamMatch implements Serializable {
         scoreComponent.setValue(Integer.valueOf(this.score));
         addToFinalScore(additionalScore);
         lastActions.add(new UndoableAction() {
+            static final long serialVersionUID = 81L;
+
             @Override
             public void undo() {
                 score -= additionalScore;
@@ -151,6 +154,8 @@ public class TeamMatch implements Serializable {
         pyramidsComponent.setValue(Integer.valueOf(pyramids));
         addToFinalScore(climb);
         lastActions.add(new UndoableAction() {
+            static final long serialVersionUID = 81L;
+
             @Override
             public void undo() {
                 pyramids -= climb;
@@ -185,6 +190,8 @@ public class TeamMatch implements Serializable {
         foulsComponent.setValue(Integer.valueOf(fouls));
         addToFinalScore(-foul);
         lastActions.add(new UndoableAction() {
+            static final long serialVersionUID = 81L;
+
             @Override
             public void undo() {
                 fouls -= foul;
@@ -208,6 +215,8 @@ public class TeamMatch implements Serializable {
         this.startingPosition = position;
         startingPos.setText(position);
         lastActions.add(new UndoableAction() {
+            static final long serialVersionUID = 81L;
+
             @Override
             public void undo() {
                 startingPosition = lastPosition;
@@ -320,6 +329,7 @@ public class TeamMatch implements Serializable {
 
     private class SetPosition implements ActionListener, Serializable {
 
+        static final long serialVersionUID = 81L;
         private final String position;
 
         public SetPosition(String position) {
@@ -334,6 +344,7 @@ public class TeamMatch implements Serializable {
 
     private class Score extends JButton implements Serializable {
 
+        static final long serialVersionUID = 81L;
         private final int score;
 
         public Score(final int score) {
@@ -344,6 +355,8 @@ public class TeamMatch implements Serializable {
 
         private class AddScore implements ActionListener, Serializable {
 
+            static final long serialVersionUID = 81L;
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 addScore(score);
@@ -353,6 +366,7 @@ public class TeamMatch implements Serializable {
 
     private class Climb extends JButton implements Serializable {
 
+        static final long serialVersionUID = 81L;
         private final int climb;
 
         public Climb(final int climb) {
@@ -363,6 +377,8 @@ public class TeamMatch implements Serializable {
 
         private class AddClimb implements ActionListener, Serializable {
 
+            static final long serialVersionUID = 81L;
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 addClimb(climb);
@@ -372,6 +388,7 @@ public class TeamMatch implements Serializable {
 
     private class Foul extends JButton implements Serializable {
 
+        static final long serialVersionUID = 81L;
         private final int foul;
 
         public Foul(final int foul) {
@@ -382,6 +399,8 @@ public class TeamMatch implements Serializable {
 
         private class AddFoul implements ActionListener, Serializable {
 
+            static final long serialVersionUID = 81L;
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 addFoul(foul);
@@ -390,6 +409,8 @@ public class TeamMatch implements Serializable {
     }
 
     private interface UndoableAction extends Serializable {
+
+        static final long serialVersionUID = 81L;
 
         void undo();
     }
