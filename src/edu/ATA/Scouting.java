@@ -99,7 +99,20 @@ public class Scouting extends JFrame {
                 o.setVisible(true);
             }
         });
+        MenuItem compile = new MenuItem("Compile into " + ScoutingDecompiler.scouting);
+        compile.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    ScoutingDecompiler.main(new String[0]);
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(rootPane, "Error while compiling");
+                    ex.printStackTrace(System.err);
+                }
+            }
+        });
         file.add(load);
+        file.add(compile);
         bar.add(file);
         setMenuBar(bar);
     }
