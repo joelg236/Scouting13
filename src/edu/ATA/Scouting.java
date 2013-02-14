@@ -178,6 +178,7 @@ public class Scouting extends JFrame {
                             } catch (NumberFormatException ex) {
                                 JOptionPane.showMessageDialog(rootPane, "Invalid input");
                                 ex.printStackTrace(System.err);
+                                return;
                             }
                             matchesDisplay.addMatch(new TeamMatch(team, match, robot));
                             dispose();
