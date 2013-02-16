@@ -33,7 +33,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 public class Scouting extends JFrame {
 
-    static final long serialVersionUID = 81L;
+    static final long serialVersionUID = 82L;
     private static Scouting s;
 
     public static void main(String[] args) {
@@ -81,7 +81,7 @@ public class Scouting extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 OpenDialog o = new OpenDialog("Open File", "Open", JFileChooser.FILES_ONLY, null) {
-                    static final long serialVersionUID = 81L;
+                    static final long serialVersionUID = 82L;
 
                     @Override
                     public void setFile(String path) {
@@ -119,7 +119,7 @@ public class Scouting extends JFrame {
 
     private class NewMatchButton extends JButton {
 
-        static final long serialVersionUID = 81L;
+        static final long serialVersionUID = 82L;
 
         public NewMatchButton() {
             super("New Match");
@@ -138,7 +138,7 @@ public class Scouting extends JFrame {
 
             private class NewMatchDialog extends JDialog {
 
-                static final long serialVersionUID = 81L;
+                static final long serialVersionUID = 82L;
 
                 public NewMatchDialog() {
                     super(s, "New Match");
@@ -169,8 +169,8 @@ public class Scouting extends JFrame {
                     create.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            int team = 0;
-                            int match = 0;
+                            int team;
+                            int match;
                             String robot = robotType.getText();
                             try {
                                 team = teamNum.getText().isEmpty() ? 0 : Integer.parseInt(teamNum.getText());
@@ -218,7 +218,7 @@ public class Scouting extends JFrame {
 
     private class MatchesDisplay extends JTabbedPane {
 
-        static final long serialVersionUID = 81L;
+        static final long serialVersionUID = 82L;
         private ArrayList<String> tabs = new ArrayList<>();
 
         public MatchesDisplay() {
@@ -245,7 +245,7 @@ public class Scouting extends JFrame {
 
         private class MatchDisplay extends JPanel {
 
-            static final long serialVersionUID = 81L;
+            static final long serialVersionUID = 82L;
             private final TeamMatch match;
 
             public MatchDisplay(final TeamMatch match) {
@@ -253,9 +253,10 @@ public class Scouting extends JFrame {
                 setRootPaneCheckingEnabled(true);
                 setLayout(new GridBagLayout());
 
-                JTextField robotType = match.getRobotTypeComponent();
+                final JTextField robotType = match.getRobotTypeComponent();
                 JTextField startingPosition = match.getStartingPositionComponent();
                 JFormattedTextField finalScore = match.getFinalScoreComponent();
+                JFormattedTextField autoScore = match.getAutoComponent();
                 JFormattedTextField score = match.getScoreComponent();
                 JFormattedTextField pyramids = match.getPyramidPointsComponent();
                 JFormattedTextField fouls = match.getFoulsComponent();
@@ -279,6 +280,7 @@ public class Scouting extends JFrame {
                 save.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
+                        match.setRobotType(robotType.getText());
                         match.setNotes(notes.getText());
                         File output = new File(System.getProperty("user.home") + System.getProperty("file.separator") + "scouting" + System.getProperty("file.separator") + match.toString() + ".data");
                         try {
@@ -306,27 +308,47 @@ public class Scouting extends JFrame {
                 constraints.gridy = 3;
                 add(new JLabel("Final Score"), constraints);
                 constraints.gridy = 4;
-                add(new JLabel("Score"), constraints);
+                add(new JLabel("Auto Score"), constraints);
                 constraints.gridy = 5;
-                add(new JLabel("Pyramid Points"), constraints);
+                add(new JLabel("Shooting Score"), constraints);
                 constraints.gridy = 6;
-                add(new JLabel("Foul Points"), constraints);
+                add(new JLabel("Pyramid Points"), constraints);
                 constraints.gridy = 7;
+                add(new JLabel("Foul Points"), constraints);
+                constraints.gridy = 8;
                 add(new JLabel("Notes"), constraints);
 
                 constraints.weightx = 1;
                 constraints.gridy = 0;
                 constraints.gridx = 1;
-                constraints.gridwidth = 4;
+
+                constraints.gridwidth = 1;
                 add(robotType, constraints);
+                constraints.gridx = 2;
+                constraints.gridwidth = 2;
+                add(match.off, constraints);
+                constraints.gridx = 4;
+                add(match.def, constraints);
                 constraints.gridy = 1;
+                constraints.gridx = 1;
+                constraints.gridwidth = 5;
                 add(startingPosition, constraints);
                 constraints.gridy = 2;
                 add(new StartingPositions(), constraints);
                 constraints.gridy = 3;
+                constraints.gridwidth = 5;
                 add(finalScore, constraints);
                 constraints.gridy = 4;
                 constraints.gridwidth = 1;
+                add(autoScore, constraints);
+                constraints.gridx = 2;
+                add(match.autoTwo, constraints);
+                constraints.gridx = 3;
+                add(match.autoFour, constraints);
+                constraints.gridx = 4;
+                add(match.autoSix, constraints);
+                constraints.gridx = 1;
+                constraints.gridy = 5;
                 add(score, constraints);
                 constraints.gridx = 2;
                 add(match.plusOne, constraints);
@@ -334,8 +356,8 @@ public class Scouting extends JFrame {
                 add(match.plusTwo, constraints);
                 constraints.gridx = 4;
                 add(match.plusThree, constraints);
+                constraints.gridy = 6;
                 constraints.gridx = 1;
-                constraints.gridy = 5;
                 add(pyramids, constraints);
                 constraints.gridx = 2;
                 add(match.tenClimb, constraints);
@@ -343,8 +365,8 @@ public class Scouting extends JFrame {
                 add(match.twentyClimb, constraints);
                 constraints.gridx = 4;
                 add(match.thirtyClimb, constraints);
+                constraints.gridy = 7;
                 constraints.gridx = 1;
-                constraints.gridy = 6;
                 constraints.gridwidth = 2;
                 add(fouls, constraints);
                 constraints.gridwidth = 1;
@@ -353,23 +375,23 @@ public class Scouting extends JFrame {
                 constraints.gridx = 4;
                 add(match.twentyFoul, constraints);
                 constraints.gridx = 1;
-                constraints.gridy = 7;
-                constraints.gridwidth = 4;
+                constraints.gridy = 8;
+                constraints.gridwidth = 5;
                 add(notes, constraints);
 
-                constraints.gridwidth = 5;
+                constraints.gridwidth = 6;
                 constraints.gridx = 0;
-                constraints.gridy = 8;
-                add(undo, constraints);
                 constraints.gridy = 9;
-                add(save, constraints);
+                add(undo, constraints);
                 constraints.gridy = 10;
+                add(save, constraints);
+                constraints.gridy = 11;
                 add(delete, constraints);
             }
 
             private class StartingPositions extends JPanel {
 
-                static final long serialVersionUID = 81L;
+                static final long serialVersionUID = 82L;
 
                 public StartingPositions() {
                     setRootPaneCheckingEnabled(true);
