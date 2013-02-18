@@ -1,9 +1,10 @@
 package edu.ATA;
 
+import edu.ata.scouting.Match;
+import edu.ata.scouting.MatchDisplay;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
@@ -11,29 +12,25 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.filechooser.FileFilter;
 
 public class Scouting extends JFrame {
 
-    static final long serialVersionUID = 82L;
     private static Scouting s;
 
     public static void main(String[] args) {
@@ -50,7 +47,8 @@ public class Scouting extends JFrame {
                 } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
                 }
                 s = new Scouting();
-                s.setSize(1115, 430);
+                s.setSize(800, 500);
+                s.setExtendedState(JFrame.MAXIMIZED_BOTH);
                 s.setLocationRelativeTo(null);
                 s.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 s.setVisible(true);
@@ -80,15 +78,24 @@ public class Scouting extends JFrame {
         load.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                OpenDialog o = new OpenDialog("Open File", "Open", JFileChooser.FILES_ONLY, null) {
-                    static final long serialVersionUID = 82L;
+                OpenDialog o = new OpenDialog("", JFileChooser.FILES_ONLY, new FileFilter() {
 
+                    @Override
+                    public boolean accept(File f) {
+                        return f.isDirectory() || f.getAbsolutePath().contains(".data");
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return ".data Files";
+                    }
+                }) {
                     @Override
                     public void setFile(String path) {
                         try {
                             File file = new File(path);
                             ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file));
-                            matchesDisplay.addMatch((TeamMatch) inputStream.readObject());
+                            matchesDisplay.addMatch((Match) inputStream.readObject());
                         } catch (IOException | ClassNotFoundException ex) {
                             JOptionPane.showMessageDialog(rootPane, "Could not load file. Make sure it is the correct file.");
                         }
@@ -119,8 +126,6 @@ public class Scouting extends JFrame {
 
     private class NewMatchButton extends JButton {
 
-        static final long serialVersionUID = 82L;
-
         public NewMatchButton() {
             super("New Match");
             addActionListener(new OpenNewMatch());
@@ -138,8 +143,6 @@ public class Scouting extends JFrame {
 
             private class NewMatchDialog extends JDialog {
 
-                static final long serialVersionUID = 82L;
-
                 public NewMatchDialog() {
                     super(s, "New Match");
                     setRootPaneCheckingEnabled(true);
@@ -147,31 +150,14 @@ public class Scouting extends JFrame {
                     JButton create = new JButton("Create match");
                     JLabel teamNumLabel = new JLabel("Team Number");
                     JLabel matchNumLabel = new JLabel("Match Number");
-                    JLabel robotTypeLabel = new JLabel("Robot Type");
                     final JTextField teamNum = new JTextField();
                     final JTextField matchNum = new JTextField();
-                    final JTextField robotType = new JTextField();
 
-                    JButton off = new JButton("Offensive"),
-                            def = new JButton("Defensive");
-                    off.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            robotType.setText(TeamMatch.OFF);
-                        }
-                    });
-                    def.addActionListener(new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            robotType.setText(TeamMatch.DEF);
-                        }
-                    });
                     create.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
                             int team;
                             int match;
-                            String robot = robotType.getText();
                             try {
                                 team = teamNum.getText().isEmpty() ? 0 : Integer.parseInt(teamNum.getText());
                                 match = matchNum.getText().isEmpty() ? 0 : Integer.parseInt(matchNum.getText());
@@ -180,7 +166,7 @@ public class Scouting extends JFrame {
                                 ex.printStackTrace(System.err);
                                 return;
                             }
-                            matchesDisplay.addMatch(new TeamMatch(team, match, robot));
+                            matchesDisplay.addMatch(new Match(team, match));
                             dispose();
                         }
                     });
@@ -190,8 +176,6 @@ public class Scouting extends JFrame {
                     add(teamNumLabel, constraint);
                     constraint.gridy = 1;
                     add(matchNumLabel, constraint);
-                    constraint.gridy = 2;
-                    add(robotTypeLabel, constraint);
                     constraint.gridy = 0;
                     constraint.gridx = 1;
                     constraint.weightx = 1;
@@ -200,14 +184,6 @@ public class Scouting extends JFrame {
                     constraint.gridy = 1;
                     add(matchNum, constraint);
                     constraint.gridy = 2;
-                    constraint.gridwidth = 1;
-                    add(robotType, constraint);
-                    constraint.gridx = 2;
-                    constraint.weightx = 0;
-                    add(off, constraint);
-                    constraint.gridx = 3;
-                    add(def, constraint);
-                    constraint.gridy = 3;
                     constraint.gridx = 0;
                     constraint.gridwidth = 4;
                     add(create, constraint);
@@ -218,7 +194,6 @@ public class Scouting extends JFrame {
 
     private class MatchesDisplay extends JTabbedPane {
 
-        static final long serialVersionUID = 82L;
         private ArrayList<String> tabs = new ArrayList<>();
 
         public MatchesDisplay() {
@@ -226,8 +201,13 @@ public class Scouting extends JFrame {
             setRootPaneCheckingEnabled(true);
         }
 
-        public void addMatch(TeamMatch match) {
-            addTab(match.toString(), new MatchDisplay(match));
+        public void addMatch(final Match match) {
+            addTab(match.toString(), new MatchDisplay(match) {
+                @Override
+                public void closeWindow() {
+                    removeTabAt(tabs.indexOf(match.toString()));
+                }
+            });
             setSelectedIndex(getTabCount() - 1);
         }
 
@@ -241,172 +221,6 @@ public class Scouting extends JFrame {
         public void removeTabAt(int index) {
             tabs.remove(index);
             super.removeTabAt(index);
-        }
-
-        private class MatchDisplay extends JPanel {
-
-            static final long serialVersionUID = 82L;
-            private final TeamMatch match;
-
-            public MatchDisplay(final TeamMatch match) {
-                this.match = match;
-                setRootPaneCheckingEnabled(true);
-                setLayout(new GridBagLayout());
-
-                final JTextField robotType = match.getRobotTypeComponent();
-                JTextField startingPosition = match.getStartingPositionComponent();
-                JFormattedTextField finalScore = match.getFinalScoreComponent();
-                JFormattedTextField autoScore = match.getAutoComponent();
-                JFormattedTextField score = match.getScoreComponent();
-                JFormattedTextField pyramids = match.getPyramidPointsComponent();
-                JFormattedTextField fouls = match.getFoulsComponent();
-                final JTextField notes = new JTextField(match.getNotes());
-
-                JButton undo = new JButton("Undo last action");
-                undo.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        match.undo();
-                    }
-                });
-                JButton delete = new JButton("Delete Match (do not save)");
-                delete.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        removeTabAt(tabs.indexOf(match.toString()));
-                    }
-                });
-                JButton save = new JButton("Save and Close Match");
-                save.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        match.setRobotType(robotType.getText());
-                        match.setNotes(notes.getText());
-                        File output = new File(System.getProperty("user.home") + System.getProperty("file.separator") + "scouting" + System.getProperty("file.separator") + match.toString() + ".data");
-                        try {
-                            if (!output.exists()) {
-                                output.getParentFile().mkdirs();
-                                output.createNewFile();
-                            }
-                            ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(output));
-                            outputStream.writeObject(match);
-                            removeTabAt(tabs.indexOf(match.toString()));
-                        } catch (IOException ex) {
-                            JOptionPane.showMessageDialog(rootPane, "Error while saving. Check to make sure " + output.getPath() + " exists.");
-                            ex.printStackTrace(System.err);
-                        }
-                    }
-                });
-
-                GridBagConstraints constraints = new GridBagConstraints();
-                constraints.fill = GridBagConstraints.BOTH;
-                constraints.weighty = 1;
-
-                add(new JLabel("Robot Type"), constraints);
-                constraints.gridy = 1;
-                add(new JLabel("Starting Position"), constraints);
-                constraints.gridy = 3;
-                add(new JLabel("Final Score"), constraints);
-                constraints.gridy = 4;
-                add(new JLabel("Auto Score"), constraints);
-                constraints.gridy = 5;
-                add(new JLabel("Shooting Score"), constraints);
-                constraints.gridy = 6;
-                add(new JLabel("Pyramid Points"), constraints);
-                constraints.gridy = 7;
-                add(new JLabel("Foul Points"), constraints);
-                constraints.gridy = 8;
-                add(new JLabel("Notes"), constraints);
-
-                constraints.weightx = 1;
-                constraints.gridy = 0;
-                constraints.gridx = 1;
-
-                constraints.gridwidth = 1;
-                add(robotType, constraints);
-                constraints.gridx = 2;
-                constraints.gridwidth = 2;
-                add(match.off, constraints);
-                constraints.gridx = 4;
-                add(match.def, constraints);
-                constraints.gridy = 1;
-                constraints.gridx = 1;
-                constraints.gridwidth = 5;
-                add(startingPosition, constraints);
-                constraints.gridy = 2;
-                add(new StartingPositions(), constraints);
-                constraints.gridy = 3;
-                constraints.gridwidth = 5;
-                add(finalScore, constraints);
-                constraints.gridy = 4;
-                constraints.gridwidth = 1;
-                add(autoScore, constraints);
-                constraints.gridx = 2;
-                add(match.autoTwo, constraints);
-                constraints.gridx = 3;
-                add(match.autoFour, constraints);
-                constraints.gridx = 4;
-                add(match.autoSix, constraints);
-                constraints.gridx = 1;
-                constraints.gridy = 5;
-                add(score, constraints);
-                constraints.gridx = 2;
-                add(match.plusOne, constraints);
-                constraints.gridx = 3;
-                add(match.plusTwo, constraints);
-                constraints.gridx = 4;
-                add(match.plusThree, constraints);
-                constraints.gridy = 6;
-                constraints.gridx = 1;
-                add(pyramids, constraints);
-                constraints.gridx = 2;
-                add(match.tenClimb, constraints);
-                constraints.gridx = 3;
-                add(match.twentyClimb, constraints);
-                constraints.gridx = 4;
-                add(match.thirtyClimb, constraints);
-                constraints.gridy = 7;
-                constraints.gridx = 1;
-                constraints.gridwidth = 2;
-                add(fouls, constraints);
-                constraints.gridwidth = 1;
-                constraints.gridx = 3;
-                add(match.threeFoul, constraints);
-                constraints.gridx = 4;
-                add(match.twentyFoul, constraints);
-                constraints.gridx = 1;
-                constraints.gridy = 8;
-                constraints.gridwidth = 5;
-                add(notes, constraints);
-
-                constraints.gridwidth = 6;
-                constraints.gridx = 0;
-                constraints.gridy = 9;
-                add(undo, constraints);
-                constraints.gridy = 10;
-                add(save, constraints);
-                constraints.gridy = 11;
-                add(delete, constraints);
-            }
-
-            private class StartingPositions extends JPanel {
-
-                static final long serialVersionUID = 82L;
-
-                public StartingPositions() {
-                    setRootPaneCheckingEnabled(true);
-                    setLayout(new GridLayout(1, 8));
-
-                    add(match.centreFront);
-                    add(match.leftFront);
-                    add(match.rightFront);
-                    add(match.left);
-                    add(match.right);
-                    add(match.leftBack);
-                    add(match.rightBack);
-                    add(match.centreBack);
-                }
-            }
         }
     }
 }

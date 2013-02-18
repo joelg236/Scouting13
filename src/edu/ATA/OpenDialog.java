@@ -9,24 +9,16 @@ import javax.swing.filechooser.FileFilter;
 
 public abstract class OpenDialog extends JFrame {
 
-    String approveButton;
-    int selectionMode;
-    FileFilter fileFilter;
-
-    public OpenDialog(String title, String approveButton, int selectionMode, FileFilter filter) {
-        super(title);
-        this.approveButton = approveButton;
-        this.selectionMode = selectionMode;
-        this.fileFilter = filter;
-
-
+    public OpenDialog(String directory, int selectionMode, FileFilter filter) {
+        super("Open");
+        setAlwaysOnTop(true);
         final JFileChooser dialog = new JFileChooser();
-
+        dialog.setCurrentDirectory(new File(directory));
         dialog.setApproveButtonMnemonic(KeyEvent.VK_ENTER);
-        dialog.setFileFilter(fileFilter);
+        dialog.setFileFilter(filter);
         dialog.setAcceptAllFileFilterUsed(false);
         dialog.setFileSelectionMode(selectionMode);
-        dialog.setApproveButtonText(approveButton);
+        dialog.setApproveButtonText("Open");
 
         dialog.addActionListener(new java.awt.event.ActionListener() {
             @Override
