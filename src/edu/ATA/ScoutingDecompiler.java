@@ -79,6 +79,7 @@ public class ScoutingDecompiler {
             compiled();
         } catch (ClassNotFoundException | IOException ex) {
             JOptionPane.showMessageDialog(null, "Error while compiling");
+            ex.printStackTrace(System.err);
         }
     }
 

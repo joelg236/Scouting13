@@ -5,12 +5,13 @@ import java.util.ArrayList;
 
 public class Match implements Serializable {
 
-    private static final long serialVersionUID = 95L;
+    public static final long serialVersionUID = 96L;
     private final int teamNumber;
     private final int matchNumber;
     private String robotType = "";
     private String startingPosition = "";
     private String notes = "";
+    private WinLoss winLoss = new WinLoss.NotComplete();
     private final ArrayList<Points> points = new ArrayList<>();
 
     public Match(int teamNumber, int matchNumber) {
@@ -24,6 +25,10 @@ public class Match implements Serializable {
 
     public void setStartingPosition(String startingPosition) {
         this.startingPosition = startingPosition;
+    }
+
+    public void setWin(WinLoss wl) {
+        this.winLoss = wl;
     }
 
     public void setNotes(String notes) {
@@ -72,6 +77,14 @@ public class Match implements Serializable {
 
     public ArrayList<Points> getPoints() {
         return points;
+    }
+
+    public WinLoss getWinLoss() {
+        return winLoss;
+    }
+
+    public boolean isWin() {
+        return winLoss.isWin();
     }
 
     public int getTotalPoints() {
@@ -185,6 +198,16 @@ public class Match implements Serializable {
         }
         return p;
     }
+    
+    public int getTeleFivePointers() {
+        int p = 0;
+        for (Points point : points) {
+            if (point instanceof ShootingPoints.FiveShot) {
+                p++;
+            }
+        }
+        return p;
+    }
 
     public int getTeleShotsMade() {
         return getTeleOnePointers() + getTeleTwoPointers() + getTeleThreePointers();
@@ -272,27 +295,35 @@ public class Match implements Serializable {
         }
     }
 
-    public static class AutonomousPoints extends Points {
+    public static class AutonomousPoints extends Points implements Serializable {
+
+        private static final long serialVersionUID = Match.serialVersionUID;
 
         private AutonomousPoints(int points) {
             super(points);
         }
 
-        public static class SixShot extends AutonomousPoints {
+        public static final class SixShot extends AutonomousPoints {
+
+            private static final long serialVersionUID = Match.serialVersionUID;
 
             public SixShot() {
                 super(6);
             }
         }
 
-        public static class FourShot extends AutonomousPoints {
+        public static final class FourShot extends AutonomousPoints {
+
+            private static final long serialVersionUID = Match.serialVersionUID;
 
             public FourShot() {
                 super(4);
             }
         }
 
-        public static class TwoShot extends AutonomousPoints {
+        public static final class TwoShot extends AutonomousPoints {
+
+            private static final long serialVersionUID = Match.serialVersionUID;
 
             public TwoShot() {
                 super(2);
@@ -300,27 +331,44 @@ public class Match implements Serializable {
         }
     }
 
-    public static class ShootingPoints extends Points {
+    public static class ShootingPoints extends Points implements Serializable {
+
+        private static final long serialVersionUID = Match.serialVersionUID;
 
         private ShootingPoints(int points) {
             super(points);
         }
+        
+        public static final class FiveShot extends ShootingPoints {
 
-        public static class ThreeShot extends ShootingPoints {
+            private static final long serialVersionUID = Match.serialVersionUID;
+
+            public FiveShot() {
+                super(5);
+            }
+        }
+
+        public static final class ThreeShot extends ShootingPoints {
+
+            private static final long serialVersionUID = Match.serialVersionUID;
 
             public ThreeShot() {
                 super(3);
             }
         }
 
-        public static class TwoShot extends ShootingPoints {
+        public static final class TwoShot extends ShootingPoints {
+
+            private static final long serialVersionUID = Match.serialVersionUID;
 
             public TwoShot() {
                 super(2);
             }
         }
 
-        public static class OneShot extends ShootingPoints {
+        public static final class OneShot extends ShootingPoints {
+
+            private static final long serialVersionUID = Match.serialVersionUID;
 
             public OneShot() {
                 super(1);
@@ -328,27 +376,35 @@ public class Match implements Serializable {
         }
     }
 
-    public static class PyramidPoints extends Points {
+    public static class PyramidPoints extends Points implements Serializable {
+
+        private static final long serialVersionUID = Match.serialVersionUID;
 
         private PyramidPoints(int points) {
             super(points);
         }
 
-        public static class ThirtyClimb extends PyramidPoints {
+        public static final class ThirtyClimb extends PyramidPoints {
+
+            private static final long serialVersionUID = Match.serialVersionUID;
 
             public ThirtyClimb() {
                 super(30);
             }
         }
 
-        public static class TwentyClimb extends PyramidPoints {
+        public static final class TwentyClimb extends PyramidPoints {
+
+            private static final long serialVersionUID = Match.serialVersionUID;
 
             public TwentyClimb() {
                 super(20);
             }
         }
 
-        public static class TenClimb extends PyramidPoints {
+        public static final class TenClimb extends PyramidPoints {
+
+            private static final long serialVersionUID = Match.serialVersionUID;
 
             public TenClimb() {
                 super(10);
@@ -356,23 +412,75 @@ public class Match implements Serializable {
         }
     }
 
-    public static class FoulPoints extends Points {
+    public static class FoulPoints extends Points implements Serializable {
+
+        private static final long serialVersionUID = Match.serialVersionUID;
 
         private FoulPoints(int points) {
             super(-points);
         }
 
-        public static class ThreeFoul extends FoulPoints {
+        public static final class ThreeFoul extends FoulPoints {
+
+            private static final long serialVersionUID = Match.serialVersionUID;
 
             public ThreeFoul() {
                 super(3);
             }
         }
 
-        public static class TwentyFoul extends FoulPoints {
+        public static final class TwentyFoul extends FoulPoints {
+
+            private static final long serialVersionUID = Match.serialVersionUID;
 
             public TwentyFoul() {
                 super(20);
+            }
+        }
+    }
+
+    public static class WinLoss implements Serializable {
+
+        private static final long serialVersionUID = Match.serialVersionUID;
+        private final boolean win;
+
+        WinLoss(boolean win) {
+            this.win = win;
+        }
+
+        public final boolean isWin() {
+            return win;
+        }
+
+        @Override
+        public String toString() {
+            return "Win: " + win;
+        }
+
+        public static final class Win extends WinLoss {
+
+            private static final long serialVersionUID = Match.serialVersionUID;
+
+            public Win() {
+                super(true);
+            }
+        }
+
+        public static final class Loss extends WinLoss {
+
+            private static final long serialVersionUID = Match.serialVersionUID;
+
+            public Loss() {
+                super(false);
+            }
+        }
+
+        public static final class NotComplete extends WinLoss {
+
+            private static final long serialVersionUID = Match.serialVersionUID;
+
+            public NotComplete() {
+                super(false);
             }
         }
     }

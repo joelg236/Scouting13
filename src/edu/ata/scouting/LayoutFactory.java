@@ -11,6 +11,8 @@ import java.awt.Insets;
  */
 public class LayoutFactory extends GridBagConstraints {
 
+    private static final long serialVersionUID = Match.serialVersionUID;
+
     /**
      * Creates a {@link GridBagLayout} for convenience.
      *

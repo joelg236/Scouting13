@@ -72,6 +72,22 @@ public class Team {
         return teamNumber;
     }
 
+    public int getWins() {
+        int w = 0;
+        for (Match match : matches) {
+            w += (match.isWin()) ? 1 : 0;
+        }
+        return w;
+    }
+
+    public int getLosses() {
+        int w = 0;
+        for (Match match : matches) {
+            w += (match.isWin()) ? 0 : 1;
+        }
+        return w;
+    }
+
     public int getTotalPoints() {
         int p = 0;
         for (Match match : matches) {

@@ -39,6 +39,7 @@ public abstract class MatchDisplay extends JPanel {
     private void init() {
         LayoutFactory factory = LayoutFactory.newFactory(GridBagConstraints.BOTH, 1, 1);
 
+        JLabel winLabel = new JLabel("Win");
         JLabel robotTypeLabel = new JLabel("Robot Type");
         JLabel startingPositionLabel = new JLabel("Starting Position");
         JLabel finalScoreLabel = new JLabel("Final Score");
@@ -48,6 +49,8 @@ public abstract class MatchDisplay extends JPanel {
         JLabel foulScoreLabel = new JLabel("Foul Points");
         JLabel notesLabel = new JLabel("Notes");
 
+        JFormattedTextField winField = new JFormattedTextField(match.getWinLoss() instanceof Match.WinLoss.Win ? "Win"
+                : (match.getWinLoss() instanceof Match.WinLoss.Loss ? "Loss" : "Not Complete"));
         JFormattedTextField robotTypeField = new JFormattedTextField(match.getRobotType());
         JFormattedTextField startingPositionField = new JFormattedTextField(match.getStartingPosition());
         finalMatchScore = new JFormattedTextField(match.getTotalPoints());
@@ -56,6 +59,9 @@ public abstract class MatchDisplay extends JPanel {
         JFormattedTextField pyramidScoreField = new JFormattedTextField(match.getTotalPyramidPoints());
         JFormattedTextField foulScoreField = new JFormattedTextField(match.getTotalFoulPoints());
         JFormattedTextField notesField = new JFormattedTextField(match.getNotes());
+
+        JButton winButton = new WinButton(true, winField);
+        JButton loseButton = new WinButton(false, winField);
 
         JButton offenseButton = new RobotTypeButton("Offense", robotTypeField);
         JButton defenseButton = new RobotTypeButton("Defense", robotTypeField);
@@ -76,6 +82,7 @@ public abstract class MatchDisplay extends JPanel {
         JButton teleopOneButton = new TeleopScoreButton(new Match.ShootingPoints.OneShot(), shootingScoreField);
         JButton teleopTwoButton = new TeleopScoreButton(new Match.ShootingPoints.TwoShot(), shootingScoreField);
         JButton teleopThreeButton = new TeleopScoreButton(new Match.ShootingPoints.ThreeShot(), shootingScoreField);
+        JButton teleopFiveButton = new TeleopScoreButton(new Match.ShootingPoints.FiveShot(), shootingScoreField);
 
         JButton pyramidTenButton = new PyramidScoreButton(new Match.PyramidPoints.TenClimb(), pyramidScoreField);
         JButton pyramidTwentyButton = new PyramidScoreButton(new Match.PyramidPoints.TwentyClimb(), pyramidScoreField);
@@ -89,6 +96,7 @@ public abstract class MatchDisplay extends JPanel {
         JButton saveButton = new JButton("Save");
         JButton exitButton = new JButton("Discard");
 
+        winField.setEditable(false);
         finalMatchScore.setEditable(false);
         autoScoreField.setEditable(false);
         shootingScoreField.setEditable(false);
@@ -100,32 +108,37 @@ public abstract class MatchDisplay extends JPanel {
         saveButton.addActionListener(new Save(robotTypeField, startingPositionField, notesField));
         exitButton.addActionListener(new Exit());
 
-        add(robotTypeLabel, factory.setWeightX(0));
-        add(startingPositionLabel, factory.setY(1));
-        add(finalScoreLabel, factory.setY(3));
-        add(autoScoreLabel, factory.setY(4));
-        add(shootingScoreLabel, factory.setY(5));
-        add(pyramidScoreLabel, factory.setY(6));
-        add(foulScoreLabel, factory.setY(7));
-        add(notesLabel, factory.setY(8));
-        add(undoButton, factory.setWeightX(1).setY(9).setWidth(9));
-        add(redoButton, factory.setY(10));
-        add(saveButton, factory.setY(11));
-        add(exitButton, factory.setY(12));
+        add(winLabel, factory.setWeightX(0));
+        add(robotTypeLabel, factory.setY(1));
+        add(startingPositionLabel, factory.setY(2));
+        add(finalScoreLabel, factory.setY(4));
+        add(autoScoreLabel, factory.setY(5));
+        add(shootingScoreLabel, factory.setY(6));
+        add(pyramidScoreLabel, factory.setY(7));
+        add(foulScoreLabel, factory.setY(8));
+        add(notesLabel, factory.setY(9));
+        add(undoButton, factory.setWeightX(1).setY(10).setWidth(9));
+        add(redoButton, factory.setY(11));
+        add(saveButton, factory.setY(12));
+        add(exitButton, factory.setY(13));
 
-        add(robotTypeField, factory.setWidth(2).setX(1).setY(0));
-        add(startingPositionField, factory.setWidth(8).setY(1));
-        add(finalMatchScore, factory.setY(3));
-        add(autoScoreField, factory.setWidth(2).setY(4));
-        add(shootingScoreField, factory.setY(5));
-        add(pyramidScoreField, factory.setY(6));
-        add(foulScoreField, factory.setWidth(3).setY(7));
-        add(notesField, factory.setWidth(8).setY(8));
+        add(winField, factory.setWidth(2).setX(1).setY(0));
+        add(robotTypeField, factory.setY(1));
+        add(startingPositionField, factory.setWidth(8).setY(2));
+        add(finalMatchScore, factory.setY(4));
+        add(autoScoreField, factory.setWidth(2).setY(5));
+        add(shootingScoreField, factory.setY(6));
+        add(pyramidScoreField, factory.setY(7));
+        add(foulScoreField, factory.setWidth(3).setY(8));
+        add(notesField, factory.setWidth(8).setY(9));
 
-        add(offenseButton, factory.setWidth(3).setY(0).setX(3));
+        add(winButton, factory.setWidth(3).setX(3).setY(0));
+        add(loseButton, factory.setX(6));
+
+        add(offenseButton, factory.setY(1).setX(3));
         add(defenseButton, factory.setX(6));
 
-        add(leftFrontButton, factory.setWidth(1).setY(2).setX(1));
+        add(leftFrontButton, factory.setWidth(1).setY(3).setX(1));
         add(centreFrontButton, factory.setX(2));
         add(rightFrontButton, factory.setX(3));
         add(leftButton, factory.setX(4));
@@ -134,19 +147,20 @@ public abstract class MatchDisplay extends JPanel {
         add(centreBackButton, factory.setX(7));
         add(rightBackButton, factory.setX(8));
 
-        add(autoTwoButton, factory.setWidth(2).setY(4).setX(3));
+        add(autoTwoButton, factory.setWidth(2).setY(5).setX(3));
         add(autoFourButton, factory.setX(5));
         add(autoSixButton, factory.setX(7));
 
-        add(teleopOneButton, factory.setY(5).setX(3));
-        add(teleopTwoButton, factory.setX(5));
-        add(teleopThreeButton, factory.setX(7));
+        add(teleopOneButton, factory.setY(6).setX(3).setWidth(1));
+        add(teleopTwoButton, factory.setX(4).setWidth(2));
+        add(teleopThreeButton, factory.setX(6).setWidth(2));
+        add(teleopFiveButton, factory.setX(8).setWidth(1));
 
-        add(pyramidTenButton, factory.setY(6).setX(3));
+        add(pyramidTenButton, factory.setWidth(2).setY(7).setX(3));
         add(pyramidTwentyButton, factory.setX(5));
         add(pyramidThirtyButton, factory.setX(7));
 
-        add(foulThreeButton, factory.setWidth(3).setY(7).setX(4));
+        add(foulThreeButton, factory.setWidth(3).setY(8).setX(4));
         add(foulTwentyButton, factory.setX(7));
     }
 
@@ -163,8 +177,46 @@ public abstract class MatchDisplay extends JPanel {
         public abstract void undoAction();
     }
 
+    private class WinButton extends JButton {
+
+        private static final long serialVersionUID = Match.serialVersionUID;
+        private final boolean win;
+        private final JFormattedTextField winField;
+
+        public WinButton(boolean win, JFormattedTextField winField) {
+            super(win ? "Win" : "Loss");
+            this.win = win;
+            this.winField = winField;
+            addActionListener(new SetWin());
+        }
+
+        private class SetWin extends Action {
+
+            private ArrayList<Match.WinLoss> prev = new ArrayList<>();
+            private int current = -1;
+
+            @Override
+            public void doAction() {
+                prev.add(match.getWinLoss());
+                current++;
+                match.setWin(win ? new Match.WinLoss.Win() : new Match.WinLoss.Loss());
+                winField.setText(match.getWinLoss() instanceof Match.WinLoss.Win ? "Win"
+                        : (match.getWinLoss() instanceof Match.WinLoss.Loss ? "Loss" : "Not Complete"));
+            }
+
+            @Override
+            public void undoAction() {
+                match.setWin(prev.get(current));
+                winField.setText(match.getWinLoss() instanceof Match.WinLoss.Win ? "Win"
+                        : (match.getWinLoss() instanceof Match.WinLoss.Loss ? "Loss" : "Not Complete"));
+                current--;
+            }
+        }
+    }
+
     private class RobotTypeButton extends JButton {
 
+        private static final long serialVersionUID = Match.serialVersionUID;
         private final JFormattedTextField robotType;
         private final String type;
 
@@ -199,6 +251,7 @@ public abstract class MatchDisplay extends JPanel {
 
     private class StartingPositionButton extends JButton {
 
+        private static final long serialVersionUID = Match.serialVersionUID;
         private final JFormattedTextField startingPosition;
         private final String position;
 
@@ -232,6 +285,7 @@ public abstract class MatchDisplay extends JPanel {
 
     private class AutoScoreButton extends JButton {
 
+        private static final long serialVersionUID = Match.serialVersionUID;
         private final Match.AutonomousPoints points;
         private final JFormattedTextField autoScore;
 
@@ -262,6 +316,7 @@ public abstract class MatchDisplay extends JPanel {
 
     private class TeleopScoreButton extends JButton {
 
+        private static final long serialVersionUID = Match.serialVersionUID;
         private final Match.ShootingPoints points;
         private final JFormattedTextField teleopScore;
 
@@ -292,6 +347,7 @@ public abstract class MatchDisplay extends JPanel {
 
     private class PyramidScoreButton extends JButton {
 
+        private static final long serialVersionUID = Match.serialVersionUID;
         private final Match.PyramidPoints points;
         private final JFormattedTextField pyramidPoints;
 
@@ -322,6 +378,7 @@ public abstract class MatchDisplay extends JPanel {
 
     private class FoulPointsButton extends JButton {
 
+        private static final long serialVersionUID = Match.serialVersionUID;
         private final Match.FoulPoints points;
         private final JFormattedTextField foulPoints;
 
@@ -404,6 +461,7 @@ public abstract class MatchDisplay extends JPanel {
                 closeWindow();
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(null, "Eror while saving to " + path + match.toString() + ".data");
+                ex.printStackTrace(System.err);
             }
         }
     }

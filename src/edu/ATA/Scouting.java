@@ -31,6 +31,7 @@ import javax.swing.filechooser.FileFilter;
 
 public class Scouting extends JFrame {
 
+    private static final long serialVersionUID = Match.serialVersionUID;
     private static Scouting s;
 
     public static void main(String[] args) {
@@ -79,6 +80,7 @@ public class Scouting extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 OpenDialog o = new OpenDialog("", JFileChooser.FILES_ONLY, new FileFilter() {
+                    private static final long serialVersionUID = Match.serialVersionUID;
 
                     @Override
                     public boolean accept(File f) {
@@ -90,6 +92,8 @@ public class Scouting extends JFrame {
                         return ".data Files";
                     }
                 }) {
+                    private static final long serialVersionUID = Match.serialVersionUID;
+
                     @Override
                     public void setFile(String path) {
                         try {
@@ -126,6 +130,8 @@ public class Scouting extends JFrame {
 
     private class NewMatchButton extends JButton {
 
+        private static final long serialVersionUID = Match.serialVersionUID;
+
         public NewMatchButton() {
             super("New Match");
             addActionListener(new OpenNewMatch());
@@ -142,6 +148,8 @@ public class Scouting extends JFrame {
             }
 
             private class NewMatchDialog extends JDialog {
+
+                private static final long serialVersionUID = Match.serialVersionUID;
 
                 public NewMatchDialog() {
                     super(s, "New Match");
@@ -194,6 +202,7 @@ public class Scouting extends JFrame {
 
     private class MatchesDisplay extends JTabbedPane {
 
+        private static final long serialVersionUID = Match.serialVersionUID;
         private ArrayList<String> tabs = new ArrayList<>();
 
         public MatchesDisplay() {
@@ -203,6 +212,8 @@ public class Scouting extends JFrame {
 
         public void addMatch(final Match match) {
             addTab(match.toString(), new MatchDisplay(match) {
+                private static final long serialVersionUID = Match.serialVersionUID;
+
                 @Override
                 public void closeWindow() {
                     removeTabAt(tabs.indexOf(match.toString()));
