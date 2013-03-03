@@ -11,7 +11,7 @@ import java.awt.Insets;
  */
 public class LayoutFactory extends GridBagConstraints {
 
-    private static final long serialVersionUID = Match.serialVersionUID;
+    private static final long serialVersionUID = Scouter.serialVersionUID;
 
     /**
      * Creates a {@link GridBagLayout} for convenience.
@@ -28,7 +28,7 @@ public class LayoutFactory extends GridBagConstraints {
      * @return new factory
      */
     public static LayoutFactory newFactory() {
-        return new LayoutFactory().setAnchor(FIRST_LINE_START).setFill(BOTH);
+        return new LayoutFactory().setAnchor(FIRST_LINE_START).setFill(BOTH).setWeightX(1).setWeightY(1);
     }
 
     /**
@@ -38,9 +38,7 @@ public class LayoutFactory extends GridBagConstraints {
      * @return the factory
      */
     public static LayoutFactory newFactory(int anchor) {
-        LayoutFactory l = new LayoutFactory();
-        l.anchor = anchor;
-        return l;
+        return new LayoutFactory().setAnchor(anchor);
     }
 
     /**
@@ -51,10 +49,7 @@ public class LayoutFactory extends GridBagConstraints {
      * @return the factory
      */
     public static LayoutFactory newFactory(int anchor, int fill) {
-        LayoutFactory l = new LayoutFactory();
-        l.anchor = anchor;
-        l.fill = fill;
-        return l;
+        return new LayoutFactory().setAnchor(anchor).setFill(fill);
     }
 
     /**
@@ -66,11 +61,7 @@ public class LayoutFactory extends GridBagConstraints {
      * @return the factory
      */
     public static LayoutFactory newFactory(int anchor, int fill, Insets insets) {
-        LayoutFactory l = new LayoutFactory();
-        l.anchor = anchor;
-        l.fill = fill;
-        l.insets = insets;
-        return l;
+        return new LayoutFactory().setAnchor(anchor).setFill(fill).setInsets(insets);
     }
 
     /**
@@ -82,11 +73,7 @@ public class LayoutFactory extends GridBagConstraints {
      * @return the factory
      */
     public static LayoutFactory newFactory(int fill, int weightx, int weighty) {
-        LayoutFactory l = new LayoutFactory();
-        l.fill = fill;
-        l.weightx = weightx;
-        l.weighty = weighty;
-        return l;
+        return new LayoutFactory().setFill(fill).setWeightX(weightx).setWeightY(weighty);
     }
 
     /**
@@ -106,17 +93,9 @@ public class LayoutFactory extends GridBagConstraints {
     public static LayoutFactory newFactory(int gridx, int gridy, int gridwidth,
             int gridheight, double weightx, double weighty, int anchor, int fill,
             Insets insets) {
-        LayoutFactory l = new LayoutFactory();
-        l.anchor = anchor;
-        l.fill = fill;
-        l.gridheight = gridheight;
-        l.gridwidth = gridwidth;
-        l.gridx = gridx;
-        l.gridy = gridy;
-        l.insets = insets;
-        l.weightx = weightx;
-        l.weighty = weighty;
-        return l;
+        return new LayoutFactory().setX(gridx).setY(gridy).setWidth(gridwidth).setHeight(gridheight)
+                .setWeightX(weightx).setWeightY(weighty).setAnchor(anchor).setFill(fill)
+                .setInsets(insets);
     }
 
     /**

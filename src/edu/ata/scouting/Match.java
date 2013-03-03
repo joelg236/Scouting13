@@ -1,487 +1,109 @@
 package edu.ata.scouting;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
-public class Match implements Serializable {
+public final class Match implements Serializable, Comparable<Match> {
 
-    public static final long serialVersionUID = 96L;
-    private final int teamNumber;
+    private static final long serialVersionUID = Scouter.serialVersionUID;
+    private final Alliance blue;
+    private final Alliance red;
+    private final boolean eliminations;
     private final int matchNumber;
-    private String robotType = "";
-    private String startingPosition = "";
-    private String notes = "";
-    private WinLoss winLoss = new WinLoss.NotComplete();
-    private final ArrayList<Points> points = new ArrayList<>();
 
-    public Match(int teamNumber, int matchNumber) {
-        this.teamNumber = teamNumber;
+    public Match(Alliance blue, Alliance red, boolean eliminations, int matchNumber) {
+        this.blue = blue;
+        this.red = red;
+        this.eliminations = eliminations;
         this.matchNumber = matchNumber;
     }
 
-    public void setRobotType(String robotType) {
-        this.robotType = robotType;
+    public Match blue(Alliance firstAlliance) {
+        return new Match(firstAlliance, red, eliminations, matchNumber);
     }
 
-    public void setStartingPosition(String startingPosition) {
-        this.startingPosition = startingPosition;
+    public Match red(Alliance red) {
+        return new Match(blue, red, eliminations, matchNumber);
     }
 
-    public void setWin(WinLoss wl) {
-        this.winLoss = wl;
+    public Match eleminations(boolean eliminations) {
+        return new Match(blue, red, eliminations, matchNumber);
     }
 
-    public void setNotes(String notes) {
-        this.notes = notes;
+    public Match matchNumber(int matchNumber) {
+        return new Match(blue, red, eliminations, matchNumber);
     }
 
-    public void removePoints(Points points) {
-        this.points.remove(this.points.lastIndexOf(points));
+    public Match regional(String regional) {
+        return new Match(blue, red, eliminations, matchNumber);
     }
 
-    public void addAutonomousPoints(AutonomousPoints autonomousPoints) {
-        points.add(autonomousPoints);
+    public Team getTeam(int team) throws NoSuchFieldException {
+        for (Team t : blue.getTeams()) {
+            if (t.getTeamNumber() == team) {
+                return t;
+            }
+        }
+        for (Team t : red.getTeams()) {
+            if (t.getTeamNumber() == team) {
+                return t;
+            }
+        }
+        throw new NoSuchFieldException("Team " + team + " does not exist in " + this);
     }
 
-    public void addShootingPoints(ShootingPoints shootingPoints) {
-        points.add(shootingPoints);
+    public Alliance getBlueAlliance() {
+        return blue;
     }
 
-    public void addPyramidPoints(PyramidPoints pyramidPoints) {
-        points.add(pyramidPoints);
+    public Alliance getRedAlliance() {
+        return red;
     }
 
-    public void addFoulPoints(FoulPoints foulPoints) {
-        points.add(foulPoints);
-    }
-
-    public int getTeamNumber() {
-        return teamNumber;
+    public boolean isEliminations() {
+        return eliminations;
     }
 
     public int getMatchNumber() {
         return matchNumber;
     }
 
-    public String getRobotType() {
-        return robotType;
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return new Match(blue, red, eliminations, matchNumber);
     }
 
-    public String getStartingPosition() {
-        return startingPosition;
+    @Override
+    public boolean equals(Object obj) {
+        return (obj instanceof Match)
+                ? (((Match) obj).eliminations == this.eliminations
+                && ((Match) obj).matchNumber == this.matchNumber)
+                : false;
     }
 
-    public String getNotes() {
-        return notes;
-    }
-
-    public ArrayList<Points> getPoints() {
-        return points;
-    }
-
-    public WinLoss getWinLoss() {
-        return winLoss;
-    }
-
-    public boolean isWin() {
-        return winLoss.isWin();
-    }
-
-    public int getTotalPoints() {
-        int p = 0;
-        for (Points point : points) {
-            p += point.getPoints();
-        }
-        return p;
-    }
-
-    public int getTotalAutonomousPoints() {
-        int p = 0;
-        for (Points point : points) {
-            if (point instanceof AutonomousPoints) {
-                p += point.getPoints();
-            }
-        }
-        return p;
-    }
-
-    public int getTotalShootingPoints() {
-        int p = 0;
-        for (Points point : points) {
-            if (point instanceof ShootingPoints) {
-                p += point.getPoints();
-            }
-        }
-        return p;
-    }
-
-    public int getTotalPyramidPoints() {
-        int p = 0;
-        for (Points point : points) {
-            if (point instanceof PyramidPoints) {
-                p += point.getPoints();
-            }
-        }
-        return p;
-    }
-
-    public int getTotalFoulPoints() {
-        int p = 0;
-        for (Points point : points) {
-            if (point instanceof FoulPoints) {
-                p += point.getPoints();
-            }
-        }
-        return p;
-    }
-
-    public int getAutoTwoPointers() {
-        int p = 0;
-        for (Points point : points) {
-            if (point instanceof AutonomousPoints.TwoShot) {
-                p++;
-            }
-        }
-        return p;
-    }
-
-    public int getAutoFourPointers() {
-        int p = 0;
-        for (Points point : points) {
-            if (point instanceof AutonomousPoints.FourShot) {
-                p++;
-            }
-        }
-        return p;
-    }
-
-    public int getAutoSixPointers() {
-        int p = 0;
-        for (Points point : points) {
-            if (point instanceof AutonomousPoints.SixShot) {
-                p++;
-            }
-        }
-        return p;
-    }
-
-    public int getAutoShotsMade() {
-        return getAutoTwoPointers() + getAutoFourPointers() + getAutoSixPointers();
-    }
-
-    public int getTeleOnePointers() {
-        int p = 0;
-        for (Points point : points) {
-            if (point instanceof ShootingPoints.OneShot) {
-                p++;
-            }
-        }
-        return p;
-    }
-
-    public int getTeleTwoPointers() {
-        int p = 0;
-        for (Points point : points) {
-            if (point instanceof ShootingPoints.TwoShot) {
-                p++;
-            }
-        }
-        return p;
-    }
-
-    public int getTeleThreePointers() {
-        int p = 0;
-        for (Points point : points) {
-            if (point instanceof ShootingPoints.ThreeShot) {
-                p++;
-            }
-        }
-        return p;
-    }
-    
-    public int getTeleFivePointers() {
-        int p = 0;
-        for (Points point : points) {
-            if (point instanceof ShootingPoints.FiveShot) {
-                p++;
-            }
-        }
-        return p;
-    }
-
-    public int getTeleShotsMade() {
-        return getTeleOnePointers() + getTeleTwoPointers() + getTeleThreePointers();
-    }
-
-    public int getTotalShotsMade() {
-        return getAutoShotsMade() + getTeleShotsMade();
-    }
-
-    public int getClimbTenPointers() {
-        int p = 0;
-        for (Points point : points) {
-            if (point instanceof PyramidPoints.TenClimb) {
-                p++;
-            }
-        }
-        return p;
-    }
-
-    public int getClimbTwentyPointers() {
-        int p = 0;
-        for (Points point : points) {
-            if (point instanceof PyramidPoints.TwentyClimb) {
-                p++;
-            }
-        }
-        return p;
-    }
-
-    public int getClimbThirtyPointers() {
-        int p = 0;
-        for (Points point : points) {
-            if (point instanceof PyramidPoints.ThirtyClimb) {
-                p++;
-            }
-        }
-        return p;
-    }
-
-    public int getFoulThreePointers() {
-        int p = 0;
-        for (Points point : points) {
-            if (point instanceof FoulPoints.ThreeFoul) {
-                p++;
-            }
-        }
-        return p;
-    }
-
-    public int getFoulTwentyPointers() {
-        int p = 0;
-        for (Points point : points) {
-            if (point instanceof FoulPoints.TwentyFoul) {
-                p++;
-            }
-        }
-        return p;
-    }
-
-    public int getFoulsDone() {
-        return getFoulThreePointers() + getFoulTwentyPointers();
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 17 * hash + (this.eliminations ? 1 : 0);
+        hash = 17 * hash + this.matchNumber;
+        return hash;
     }
 
     @Override
     public String toString() {
-        return "Team " + getTeamNumber() + " - Match " + getMatchNumber();
+        return "Match " + matchNumber
+                + (eliminations ? " of eliminations" : " of qualifications");
     }
 
-    public static class Points implements Serializable {
-
-        private static final long serialVersionUID = Match.serialVersionUID;
-        private final int points;
-
-        Points(int points) {
-            this.points = points;
-        }
-
-        public final int getPoints() {
-            return points;
-        }
-
-        @Override
-        public String toString() {
-            return String.valueOf(getPoints());
-        }
-    }
-
-    public static class AutonomousPoints extends Points implements Serializable {
-
-        private static final long serialVersionUID = Match.serialVersionUID;
-
-        private AutonomousPoints(int points) {
-            super(points);
-        }
-
-        public static final class SixShot extends AutonomousPoints {
-
-            private static final long serialVersionUID = Match.serialVersionUID;
-
-            public SixShot() {
-                super(6);
-            }
-        }
-
-        public static final class FourShot extends AutonomousPoints {
-
-            private static final long serialVersionUID = Match.serialVersionUID;
-
-            public FourShot() {
-                super(4);
-            }
-        }
-
-        public static final class TwoShot extends AutonomousPoints {
-
-            private static final long serialVersionUID = Match.serialVersionUID;
-
-            public TwoShot() {
-                super(2);
-            }
-        }
-    }
-
-    public static class ShootingPoints extends Points implements Serializable {
-
-        private static final long serialVersionUID = Match.serialVersionUID;
-
-        private ShootingPoints(int points) {
-            super(points);
-        }
-        
-        public static final class FiveShot extends ShootingPoints {
-
-            private static final long serialVersionUID = Match.serialVersionUID;
-
-            public FiveShot() {
-                super(5);
-            }
-        }
-
-        public static final class ThreeShot extends ShootingPoints {
-
-            private static final long serialVersionUID = Match.serialVersionUID;
-
-            public ThreeShot() {
-                super(3);
-            }
-        }
-
-        public static final class TwoShot extends ShootingPoints {
-
-            private static final long serialVersionUID = Match.serialVersionUID;
-
-            public TwoShot() {
-                super(2);
-            }
-        }
-
-        public static final class OneShot extends ShootingPoints {
-
-            private static final long serialVersionUID = Match.serialVersionUID;
-
-            public OneShot() {
-                super(1);
-            }
-        }
-    }
-
-    public static class PyramidPoints extends Points implements Serializable {
-
-        private static final long serialVersionUID = Match.serialVersionUID;
-
-        private PyramidPoints(int points) {
-            super(points);
-        }
-
-        public static final class ThirtyClimb extends PyramidPoints {
-
-            private static final long serialVersionUID = Match.serialVersionUID;
-
-            public ThirtyClimb() {
-                super(30);
-            }
-        }
-
-        public static final class TwentyClimb extends PyramidPoints {
-
-            private static final long serialVersionUID = Match.serialVersionUID;
-
-            public TwentyClimb() {
-                super(20);
-            }
-        }
-
-        public static final class TenClimb extends PyramidPoints {
-
-            private static final long serialVersionUID = Match.serialVersionUID;
-
-            public TenClimb() {
-                super(10);
-            }
-        }
-    }
-
-    public static class FoulPoints extends Points implements Serializable {
-
-        private static final long serialVersionUID = Match.serialVersionUID;
-
-        private FoulPoints(int points) {
-            super(-points);
-        }
-
-        public static final class ThreeFoul extends FoulPoints {
-
-            private static final long serialVersionUID = Match.serialVersionUID;
-
-            public ThreeFoul() {
-                super(3);
-            }
-        }
-
-        public static final class TwentyFoul extends FoulPoints {
-
-            private static final long serialVersionUID = Match.serialVersionUID;
-
-            public TwentyFoul() {
-                super(20);
-            }
-        }
-    }
-
-    public static class WinLoss implements Serializable {
-
-        private static final long serialVersionUID = Match.serialVersionUID;
-        private final boolean win;
-
-        WinLoss(boolean win) {
-            this.win = win;
-        }
-
-        public final boolean isWin() {
-            return win;
-        }
-
-        @Override
-        public String toString() {
-            return "Win: " + win;
-        }
-
-        public static final class Win extends WinLoss {
-
-            private static final long serialVersionUID = Match.serialVersionUID;
-
-            public Win() {
-                super(true);
-            }
-        }
-
-        public static final class Loss extends WinLoss {
-
-            private static final long serialVersionUID = Match.serialVersionUID;
-
-            public Loss() {
-                super(false);
-            }
-        }
-
-        public static final class NotComplete extends WinLoss {
-
-            private static final long serialVersionUID = Match.serialVersionUID;
-
-            public NotComplete() {
-                super(false);
-            }
+    @Override
+    public int compareTo(Match o) {
+        if(o.isEliminations() && isEliminations()) {
+            return Integer.compare(matchNumber, o.matchNumber);
+        } else if(o.isEliminations() && !isEliminations()) {
+            return -100;
+        } else if (!o.isEliminations() && isEliminations()) {
+            return 100;
+        } else {
+            return Integer.compare(matchNumber, o.matchNumber);
         }
     }
 }
