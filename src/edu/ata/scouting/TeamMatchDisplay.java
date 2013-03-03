@@ -22,6 +22,8 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Timer;
+import java.util.TimerTask;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -334,6 +336,9 @@ public final class TeamMatchDisplay extends JDialog {
     private final class ClimbDisplay extends JPanel {
 
         private final Color climbColor = Color.BLUE;
+        private final JLabel climbTimer = new JLabel(String.format("%.2f", match.getClimbTime()));
+        private boolean climbed = false;
+        private double startTime = 0;
 
         public ClimbDisplay() {
             super(LayoutFactory.createLayout());
@@ -343,12 +348,46 @@ public final class TeamMatchDisplay extends JDialog {
             JButton ten = new ClimbPoint(10);
             JButton twenty = new ClimbPoint(20);
             JButton thirty = new ClimbPoint(30);
+            JButton startClimb = new StartClimb();
+            climbTimer.setFont(buttonFont);
+            climbTimer.setHorizontalAlignment(SwingConstants.CENTER);
 
             LayoutFactory factory = LayoutFactory.newFactory();
-            add(title, factory.setWidth(3));
-            add(ten, factory.setY(1).setWidth(1));
+            add(title, factory);
+            add(startClimb, factory.setX(1));
+            add(climbTimer, factory.setX(2));
+            add(ten, factory.setY(1).setX(0));
             add(twenty, factory.setX(1));
             add(thirty, factory.setX(2));
+        }
+
+        private final class StartClimb extends JButton {
+
+            public StartClimb() {
+                super("Start Climb");
+                setBackground(Color.ORANGE);
+                setFont(buttonFont);
+                addActionListener(new Start());
+            }
+
+            private final class Start implements ActionListener {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    startTime = System.currentTimeMillis() / 1000;
+                    final Timer t = new Timer();
+                    t.scheduleAtFixedRate(new TimerTask() {
+                        @Override
+                        public void run() {
+                            if (climbed) {
+                                match.setClimbTime((System.currentTimeMillis() / 1000.0) - (long) startTime);
+                                t.cancel();
+                            }
+                            climbTimer.setText(String.format("%.2f", (double) (System.currentTimeMillis() / 1000.0) - (long) startTime));
+                        }
+                    }, 0, 20);
+                }
+            }
         }
 
         private final class ClimbPoint extends JButton {
@@ -381,6 +420,7 @@ public final class TeamMatchDisplay extends JDialog {
                         default:
                             p = new TenPointClimb();
                     }
+                    climbed = true;
                     addScore(p);
                 }
             }

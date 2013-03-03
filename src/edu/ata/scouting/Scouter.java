@@ -26,13 +26,10 @@ import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.UnsupportedLookAndFeelException;
 
 public final class Scouter extends JFrame {
 
-    public static final long serialVersionUID = 103L;
+    public static final long serialVersionUID = 104L;
     public static Scouter mainWindow;
     public static final String scoutingDir = System.getProperty("user.home")
             + System.getProperty("file.separator") + "scouting" + System.getProperty("file.separator");
@@ -44,16 +41,6 @@ public final class Scouter extends JFrame {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                try {
-                    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                        if ("Nimbus".equals(info.getName())) {
-                            UIManager.setLookAndFeel(info.getClassName());
-                            break;
-                        }
-                    }
-                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
-                }
-
                 (mainWindow = new Scouter()).setVisible(true);
             }
         });
@@ -74,6 +61,19 @@ public final class Scouter extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 save();
+            }
+        });
+
+        JMenuItem compile = new JMenuItem("Compile All");
+        compile.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    DataDecompiling.compile((Regional) regional.clone(), (ArrayList<TeamMatch>) matches.clone());
+                } catch (CloneNotSupportedException ex) {
+                    ex.printStackTrace(System.err);
+                    JOptionPane.showMessageDialog(Scouter.mainWindow, ex);
+                }
             }
         });
 
@@ -116,6 +116,12 @@ public final class Scouter extends JFrame {
                         }
                     }
                     regional.removeMatch(h);
+                    for (int x = 0; x < matches.size(); x++) {
+                        if (matches.get(x).getMatch().equals(h)) {
+                            matches.remove(x);
+                            break;
+                        }
+                    }
                     showMatches();
                 } catch (Exception ex) {
                     ex.printStackTrace(System.err);
@@ -125,6 +131,7 @@ public final class Scouter extends JFrame {
         });
 
         file.add(save);
+        file.add(compile);
         edit.add(create);
         edit.add(remove);
 
@@ -136,8 +143,7 @@ public final class Scouter extends JFrame {
         setLayout(new GridLayout(0, 1));
         init();
 
-        setMinimumSize(new Dimension(400, 350));
-        pack();
+        setMinimumSize(new Dimension(500, 500));
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setDefaultLookAndFeelDecorated(false);
@@ -188,27 +194,32 @@ public final class Scouter extends JFrame {
     }
 
     public void save() {
-        for (TeamMatch match : matches) {
-            File f = new File(scoutingDir + regional.getName() + " - " + match + ".tm");
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (TeamMatch match : matches) {
+                    File f = new File(scoutingDir + regional.getName() + " - " + match + ".tm");
 
-            try (ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(f))) {
-                stream.writeObject(match);
-                System.out.println("Saved match " + match + " in " + f.getPath());
-            } catch (IOException ex) {
-                ex.printStackTrace(System.err);
-                JOptionPane.showMessageDialog(Scouter.mainWindow, ex);
+                    try (ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(f))) {
+                        stream.writeObject(match);
+                        System.out.println("Saved match " + match + " in " + f.getPath());
+                    } catch (IOException ex) {
+                        ex.printStackTrace(System.err);
+                        JOptionPane.showMessageDialog(Scouter.mainWindow, ex);
+                    }
+                }
+
+                File r = new File(scoutingDir + regional.getName() + ".regional");
+
+                try (ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(r))) {
+                    stream.writeObject(regional);
+                    System.out.println("Saved regional " + regional + " in " + r.getPath());
+                } catch (IOException ex) {
+                    ex.printStackTrace(System.err);
+                    JOptionPane.showMessageDialog(Scouter.mainWindow, ex);
+                }
             }
-        }
-
-        File r = new File(scoutingDir + regional.getName() + ".regional");
-
-        try (ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(r))) {
-            stream.writeObject(regional);
-            System.out.println("Saved regional " + regional + " in " + r.getPath());
-        } catch (IOException ex) {
-            ex.printStackTrace(System.err);
-            JOptionPane.showMessageDialog(Scouter.mainWindow, ex);
-        }
+        }).start();
     }
 
     public void addTeamMatch(TeamMatch teamMatch) {

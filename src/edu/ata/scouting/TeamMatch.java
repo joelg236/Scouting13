@@ -18,6 +18,7 @@ public final class TeamMatch implements Serializable {
     private final Match match;
     private final Team team;
     private final ArrayList<Points> points = new ArrayList<>();
+    private double climbTime = 0;
     private RobotType type = new RobotType("Unknown");
     private Win win = UNKNOWN;
     private String startingPosition = "Unknown";
@@ -45,6 +46,10 @@ public final class TeamMatch implements Serializable {
         }
     }
 
+    public void setClimbTime(double climbTime) {
+        this.climbTime = climbTime;
+    }
+
     public void setRobotType(RobotType type) {
         this.type = type;
     }
@@ -63,6 +68,10 @@ public final class TeamMatch implements Serializable {
 
     public List<Points> getPoints() {
         return Collections.unmodifiableList(points);
+    }
+
+    public double getClimbTime() {
+        return climbTime;
     }
 
     public RobotType getRobotType() {
