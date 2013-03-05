@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public final class TeamMatch implements Serializable {
+public final class TeamMatch implements Serializable, Comparable<TeamMatch> {
 
     private static final long serialVersionUID = Scouter.serialVersionUID;
     public static final RobotType OFFENSIVE = new RobotType(RobotType.OFF),
@@ -113,6 +113,11 @@ public final class TeamMatch implements Serializable {
                 ? ((TeamMatch) obj).match.equals(this.match)
                 && ((TeamMatch) obj).team.equals(this.team)
                 : false;
+    }
+
+    @Override
+    public int compareTo(TeamMatch o) {
+        return this.match.compareTo(o.match);
     }
 
     @Override

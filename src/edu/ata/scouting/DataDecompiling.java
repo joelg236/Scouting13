@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -36,6 +37,9 @@ public class DataDecompiling {
                 m.add(match);
                 teams.put(match.getTeam(), m);
             }
+        }
+        for (ArrayList<TeamMatch> t : teams.values()) {
+            Collections.sort(t);
         }
 
         for (Team team : teams.keySet()) {
