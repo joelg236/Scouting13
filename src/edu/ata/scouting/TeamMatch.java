@@ -12,6 +12,8 @@ public final class TeamMatch implements Serializable, Comparable<TeamMatch> {
     private static final long serialVersionUID = Scouter.serialVersionUID;
     public static final RobotType OFFENSIVE = new RobotType(RobotType.OFF),
             DEFENSIVE = new RobotType(RobotType.DEF);
+    public static final Intake GROUND = new Intake(Intake.GROUND),
+            FEEDER = new Intake(Intake.FEEDER);
     public static final Win WIN = new Win(Win.win, true),
             LOSS = new Win(Win.loss, false),
             UNKNOWN = new Win(Win.unknown, false);
@@ -20,6 +22,7 @@ public final class TeamMatch implements Serializable, Comparable<TeamMatch> {
     private final ArrayList<Points> points = new ArrayList<>();
     private double climbTime = 0;
     private RobotType type = new RobotType("Unknown");
+    private ArrayList<Intake> intake = new ArrayList<>();
     private Win win = UNKNOWN;
     private String startingPosition = "Unknown";
     private String notes = "";
@@ -54,6 +57,16 @@ public final class TeamMatch implements Serializable, Comparable<TeamMatch> {
         this.type = type;
     }
 
+    public void addIntake(Intake intake) {
+        if (!this.intake.contains(intake)) {
+            this.intake.add(intake);
+        }
+    }
+    
+    public void removeIntake(Intake intake) {
+        this.intake.remove(intake);
+    }
+
     public void setWin(Win win) {
         this.win = win;
     }
@@ -76,6 +89,10 @@ public final class TeamMatch implements Serializable, Comparable<TeamMatch> {
 
     public RobotType getRobotType() {
         return type;
+    }
+
+    public List<Intake> getIntakeTypes() {
+        return Collections.unmodifiableList(intake);
     }
 
     public Win getWin() {
@@ -146,6 +163,17 @@ public final class TeamMatch implements Serializable, Comparable<TeamMatch> {
         @Override
         public String toString() {
             return type;
+        }
+    }
+
+    public static final class Intake implements Serializable {
+
+        private static final long serialVersionUID = Scouter.serialVersionUID;
+        private static final String GROUND = "Ground", FEEDER = "Feeder";
+        private final String type;
+
+        private Intake(String type) {
+            this.type = type;
         }
     }
 

@@ -174,7 +174,7 @@ public final class Scouter extends JFrame {
             } else {
                 regional = new Regional(JOptionPane.showInputDialog("Choose name for new regional"));
             }
-            if (regional == null) {
+            if (regional == null || regional.getName() == null) {
                 JOptionPane.showMessageDialog(Scouter.mainWindow, "Regional is needed to run this program.");
                 System.exit(10);
             }

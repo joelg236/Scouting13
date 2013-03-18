@@ -79,6 +79,16 @@ public class Stats {
         return min;
     }
 
+    List<TeamMatch.Intake> intake() {
+        ArrayList<TeamMatch.Intake> intakes = new ArrayList<>();
+        for (TeamMatch t : matches) {
+            for (TeamMatch.Intake i : t.getIntakeTypes()) {
+                intakes.add(i);
+            }
+        }
+        return intakes;
+    }
+
     double matches() {
         return matches.size();
     }

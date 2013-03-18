@@ -137,7 +137,7 @@ public class DataDecompiling {
     }
 
     private static String allStats(ArrayList<TeamMatch> allMatches) {
-        String full = "Team,Total Score,Average Score,Score Range,Score SD,"
+        String full = "Team,Intake,Total Score,Average Score,Score Range,Score SD,"
                 + "Total Auto,Average Auto,Auto Range,Auto SD,Total Tele,Average"
                 + " Tele,Tele Range,Tele SD,Total Climb,Average Climb,Average "
                 + "Climb Time,Climb SD,Total Fouls\n";
@@ -163,6 +163,7 @@ public class DataDecompiling {
         String full = "";
         Stats stats = new Stats(matches);
         full += team + COMMA;
+        full += stats.intake() + COMMA;
         full += stats.totalScore() + COMMA;
         full += stats.avgScore() + COMMA;
         full += stats.scoreRange() + COMMA;

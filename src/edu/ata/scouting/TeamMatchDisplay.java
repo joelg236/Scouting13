@@ -14,7 +14,6 @@ import edu.ata.scouting.points.tele.FivePointTele;
 import edu.ata.scouting.points.tele.OnePointTele;
 import edu.ata.scouting.points.tele.ThreePointTele;
 import edu.ata.scouting.points.tele.TwoPointTele;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
@@ -24,8 +23,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Timer;
 import java.util.TimerTask;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -44,11 +43,15 @@ public final class TeamMatchDisplay extends JDialog {
     private final TeamMatch match;
     private final ScoreDisplay scoreDisplay;
     private JTextArea notes;
+    private JCheckBox ground;
+    private JCheckBox feeder;
 
     public TeamMatchDisplay(TeamMatch match) {
         super(mainWindow, match.toString());
         this.match = match;
         this.notes = new JTextArea(match.getNotes());
+        this.ground = new JCheckBox("Ground Pickup", match.getIntakeTypes().contains(TeamMatch.GROUND));
+        this.feeder = new JCheckBox("Feeder Station", match.getIntakeTypes().contains(TeamMatch.FEEDER));
         setRootPane(new JRootPane());
         setRootPaneCheckingEnabled(true);
         setLayout(LayoutFactory.createLayout());
@@ -374,6 +377,7 @@ public final class TeamMatchDisplay extends JDialog {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
+                    climbed = false;
                     startTime = System.currentTimeMillis() / 1000;
                     final Timer t = new Timer();
                     t.scheduleAtFixedRate(new TimerTask() {
@@ -493,14 +497,17 @@ public final class TeamMatchDisplay extends JDialog {
             notesLabel.setFont(robotTypeLabel.getFont());
             notesLabel.setHorizontalAlignment(SwingConstants.CENTER);
             robotType.setEditable(false);
+            ground.setHorizontalAlignment(SwingConstants.RIGHT);
 
             LayoutFactory factory = LayoutFactory.newFactory();
             add(robotTypeLabel, factory.setWidth(3));
-            add(robotType, factory.setY(1).setWidth(1));
+            add(ground, factory.setY(1).setWidth(1));
+            add(feeder, factory.setX(2));
+            add(robotType, factory.setY(2).setX(0));
             add(offense, factory.setX(1));
             add(defense, factory.setX(2));
-            add(notesLabel, factory.setY(2).setX(0).setWidth(3));
-            add(notes, factory.setY(3));
+            add(notesLabel, factory.setY(3).setX(0).setWidth(3));
+            add(notes, factory.setY(4));
         }
 
         private final class TypeButton extends JButton {
@@ -582,6 +589,16 @@ public final class TeamMatchDisplay extends JDialog {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
+                    if (ground.isSelected()) {
+                        match.addIntake(TeamMatch.GROUND);
+                    } else {
+                        match.removeIntake(TeamMatch.GROUND);
+                    }
+                    if (feeder.isSelected()) {
+                        match.addIntake(TeamMatch.FEEDER);
+                    } else {
+                        match.removeIntake(TeamMatch.FEEDER);
+                    }
                     match.setNotes(notes.getText());
                     Scouter.mainWindow.addTeamMatch(match);
                     dispose();
