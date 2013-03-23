@@ -1,46 +1,25 @@
 package edu.ata.scouting;
 
-import java.io.Serializable;
-import java.util.Arrays;
+// Immutable
+public final class Alliance {
 
-public final class Alliance implements Serializable {
+    private final Team t1, t2, t3;
 
-    private static final long serialVersionUID = Scouter.serialVersionUID;
-    private final Team[] teams;
-
-    public Alliance(Team team1, Team team2, Team team3) {
-        this.teams = new Team[]{team1, team2, team3};
+    public Alliance(Team t1, Team t2, Team t3) {
+        this.t1 = t1;
+        this.t2 = t2;
+        this.t3 = t3;
     }
 
-    private Alliance(Team[] teams) {
-        this.teams = teams;
+    public Team getTeam1() {
+        return t1;
     }
 
-    public Team[] getTeams() {
-        return teams;
+    public Team getTeam2() {
+        return t2;
     }
 
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return new Alliance(teams);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return (obj instanceof Alliance)
-                ? Arrays.equals(((Alliance) obj).teams, this.teams)
-                : false;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 5;
-        hash = 59 * hash + Arrays.deepHashCode(this.teams);
-        return hash;
-    }
-
-    @Override
-    public String toString() {
-        return "Alliance of " + teams[0] + ", " + teams[1] + " and " + teams[2];
+    public Team getTeam3() {
+        return t3;
     }
 }

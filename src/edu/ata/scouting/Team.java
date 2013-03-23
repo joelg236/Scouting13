@@ -1,45 +1,26 @@
 package edu.ata.scouting;
 
-import java.io.Serializable;
+// Immutable
+public final class Team {
 
-public final class Team implements Serializable {
-
-    private static final long serialVersionUID = Scouter.serialVersionUID;
+    public static final String NO_NAME = "No Name";
     private final int teamNumber;
+    private final String teamName;
 
     public Team(int teamNumber) {
-        this.teamNumber = teamNumber;
+        this(teamNumber, NO_NAME);
     }
 
-    public Team teamNumber(int teamNumber) {
-        return new Team(teamNumber);
+    public Team(int teamNumber, String teamName) {
+        this.teamNumber = teamNumber;
+        this.teamName = teamName;
+    }
+
+    public String getTeamName() {
+        return teamName;
     }
 
     public int getTeamNumber() {
         return teamNumber;
-    }
-
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return new Team(teamNumber);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return (obj instanceof Team)
-                ? ((Team) obj).teamNumber == this.teamNumber
-                : false;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 23 * hash + this.teamNumber;
-        return hash;
-    }
-
-    @Override
-    public String toString() {
-        return "Team " + teamNumber;
     }
 }
