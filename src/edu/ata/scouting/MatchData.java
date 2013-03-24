@@ -3,6 +3,7 @@ package edu.ata.scouting;
 import edu.ata.scouting.points.Points;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,10 +46,12 @@ public final class MatchData {
 
     public MatchData(TeamMatch match) {
         this.match = match.getMatch();
-        points = Arrays.asList(match.getPoints());
+        points = new ArrayList<>();
+        points.addAll(Arrays.asList(match.getPoints()));
         robotType = match.getRobotType();
         startingPosition = match.getStartingPosition();
-        intakes = Arrays.asList(match.getIntakes());
+        intakes = new ArrayList<>();
+        intakes.addAll(Arrays.asList(match.getIntakes()));
         shooterType = match.getShooterType();
         matchResult = match.getMatchResult();
         autoDiscCount = match.getAutoDiscCount();
@@ -62,7 +65,9 @@ public final class MatchData {
     }
 
     public void popLastPoints() {
-        points.remove(points.size() - 1);
+        if (points.size() > 0) {
+            points.remove(points.size() - 1);
+        }
     }
 
     public void setRobotType(TeamMatch.RobotType robotType) {
@@ -101,6 +106,15 @@ public final class MatchData {
 
     public Match getMatch() {
         return match;
+    }
+
+    public Points.ClimbPoints getClimb() {
+        for (Points p : points) {
+            if (p instanceof Points.ClimbPoints) {
+                return (Points.ClimbPoints) p;
+            }
+        }
+        return null;
     }
 
     public List<Points> getPoints() {

@@ -3,9 +3,11 @@ package edu.ata.scouting;
 import edu.ata.scouting.user.NewMatch;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -25,19 +27,23 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
+import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 
 public final class MainWindow extends JFrame {
 
     private final HashMap<Match, ArrayList<TeamMatch>> matches = new HashMap<>();
     private final JPanel panel = new JPanel(new GridLayout(0, 8));
+    private final JScrollPane pane = new JScrollPane(panel);
+    private String matchListName = "";
 
     public MainWindow() {
         super("4334");
         setRootPane(new JRootPane());
         setRootPaneCheckingEnabled(true);
         setMinimumSize(new Dimension(500, 0));
-        setLocationRelativeTo(null);
+        setMaximizedBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setDefaultLookAndFeelDecorated(false);
 
@@ -50,7 +56,7 @@ public final class MainWindow extends JFrame {
         save.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String name = JOptionPane.showInputDialog("What is this match list called?");
+                String name = JOptionPane.showInputDialog("What is this match list called?", matchListName);
                 if (name == null || name.equals("")) {
                     Scouter.showErr(new NullPointerException("Invalid option"));
                     return;
@@ -86,6 +92,7 @@ public final class MainWindow extends JFrame {
                 }
             }
         });
+        save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
 
         JMenuItem newMatch = new JMenuItem("New Match");
         newMatch.addActionListener(new ActionListener() {
@@ -196,8 +203,9 @@ public final class MainWindow extends JFrame {
             panel.add(buttons[5]);
         }
 
-        add(panel);
+        add(pane);
         pack();
+        setLocationRelativeTo(null);
     }
 
     public void createMatch(Match match) {
@@ -236,6 +244,7 @@ public final class MainWindow extends JFrame {
                                     == JOptionPane.showConfirmDialog(this,
                                     "Found match list " + f.getPath() + ", open it?")) {
                                 System.out.println("Using match list " + o);
+                                matchListName = f.getPath().substring(f.getPath().lastIndexOf(System.getProperty("file.separator")) + 1);
                                 for (Match m : (ArrayList<Match>) o) {
                                     matches.put(m, new ArrayList<TeamMatch>());
                                 }

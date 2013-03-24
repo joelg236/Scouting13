@@ -38,8 +38,14 @@ public final class TeamMatch implements Serializable {
             MatchResult matchResult, AutoDiscCount autoDiscCount, String matchNote, String teamNote) {
         if (team == null || match == null || points == null || robotType == null
                 || startingPosition == null || intakes == null || shooterType == null
-                || matchResult == null || autoDiscCount == null || matchNote == null || teamNote == null) {
+                || matchResult == null || autoDiscCount == null) {
             throw new NullPointerException();
+        }
+        if(matchNote == null) {
+            matchNote = "";
+        }
+        if(teamNote == null) {
+            teamNote = "";
         }
         this.team = team;
         this.match = match;
@@ -119,7 +125,7 @@ public final class TeamMatch implements Serializable {
     public static enum StartingPosition {
 
         Unknown,
-        FrontLeft, Front, FrontRight,
+        FrontLeft, FrontMiddle, FrontRight,
         Left, Middle, Right,
         BackLeft, BackMiddle, BackRight
     }
