@@ -1,8 +1,11 @@
 package edu.ata.scouting;
 
 // Immutable
-public final class Team {
+import java.io.Serializable;
 
+public final class Team implements Serializable {
+
+    private static final long serialVersionUID = Scouter.serialVersionUID;
     public static final String NO_NAME = "No Name";
     private final int teamNumber;
     private final String teamName;

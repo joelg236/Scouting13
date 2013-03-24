@@ -1,8 +1,12 @@
 package edu.ata.scouting;
 
 // Immutable
-public final class Alliance {
 
+import java.io.Serializable;
+
+public final class Alliance implements Serializable {
+
+    private static final long serialVersionUID = Scouter.serialVersionUID;
     private final Team t1, t2, t3;
 
     public Alliance(Team t1, Team t2, Team t3) {

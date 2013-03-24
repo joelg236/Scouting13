@@ -1,8 +1,12 @@
 package edu.ata.scouting;
 
 // Immutable
-public final class Match {
 
+import java.io.Serializable;
+
+public final class Match implements Serializable {
+
+    private static final long serialVersionUID = Scouter.serialVersionUID;
     private final Alliance red, blue;
     private final int matchNum;
     private final MatchType matchType;
