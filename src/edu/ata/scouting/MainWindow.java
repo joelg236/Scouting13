@@ -1,5 +1,6 @@
 package edu.ata.scouting;
 
+import edu.ata.scouting.user.NewMatch;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -7,8 +8,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -37,6 +40,68 @@ public final class MainWindow extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setDefaultLookAndFeelDecorated(false);
+
+        JMenuBar bar = new JMenuBar();
+
+        JMenu file = new JMenu("File");
+        JMenu edit = new JMenu("Edit");
+
+        JMenuItem save = new JMenuItem("Save");
+        save.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String name = JOptionPane.showInputDialog("What is this match list called?");
+                if (name == null || name.equals("")) {
+                    Scouter.showErr(new NullPointerException("Invalid option"));
+                    return;
+                }
+
+                try {
+                    File matchList = new File(Scouter.scoutingDir + name);
+                    matchList.getParentFile().mkdirs();
+                    matchList.createNewFile();
+                    try (FileOutputStream matchListStream = new FileOutputStream(matchList)) {
+                        ArrayList<Match> m = new ArrayList<>(matches.keySet());
+                        try (ObjectOutputStream stream = new ObjectOutputStream(matchListStream)) {
+                            stream.writeObject(m);
+                        }
+                        System.out.println("Saved to " + matchList.getPath());
+                    }
+
+                    for (ArrayList<TeamMatch> list : matches.values()) {
+                        for (TeamMatch tm : list) {
+                            File f = new File(Scouter.scoutingDir + name + " Matches" + System.getProperty("file.separator") + tm);
+                            f.getParentFile().mkdirs();
+                            f.createNewFile();
+                            try (FileOutputStream st = new FileOutputStream(f)) {
+                                try (ObjectOutputStream stream = new ObjectOutputStream(st)) {
+                                    stream.writeObject(tm);
+                                    System.out.println("Saved to " + f.getPath());
+                                }
+                            }
+                        }
+                    }
+                } catch (IOException ex) {
+                    Scouter.showErr(ex);
+                }
+            }
+        });
+
+        JMenuItem newMatch = new JMenuItem("New Match");
+        newMatch.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new NewMatch(Scouter.getMain()).setVisible(true);
+            }
+        });
+
+        file.add(save);
+        edit.add(newMatch);
+
+        bar.add(file);
+        bar.add(edit);
+
+        setJMenuBar(bar);
 
         updateMatches();
     }
@@ -108,6 +173,7 @@ public final class MainWindow extends JFrame {
 
             for (int x = 0; x < 6; x++) {
                 final int index = x;
+                buttons[x].setForeground(Color.WHITE);
                 buttons[x].addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -134,6 +200,11 @@ public final class MainWindow extends JFrame {
         pack();
     }
 
+    public void createMatch(Match match) {
+        matches.put(match, new ArrayList<TeamMatch>());
+        updateMatches();
+    }
+
     public void putMatch(Team team, MatchData data) {
         ArrayList<TeamMatch> m = matches.get(data.getMatch());
         ArrayList<TeamMatch> toRemove = new ArrayList<>();
@@ -147,29 +218,6 @@ public final class MainWindow extends JFrame {
         }
         matches.get(data.getMatch()).add(new TeamMatch(team, data));
         updateMatches();
-    }
-
-    // Menu stuff
-    {
-        JMenuBar bar = new JMenuBar();
-
-        JMenu file = new JMenu("File");
-        JMenu edit = new JMenu("Edit");
-
-        JMenuItem newMatch = new JMenuItem("New Match");
-        newMatch.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                
-            }
-        });
-
-        edit.add(newMatch);
-
-        bar.add(file);
-        bar.add(edit);
-
-        setJMenuBar(bar);
     }
 
     // Ugly file stuff
