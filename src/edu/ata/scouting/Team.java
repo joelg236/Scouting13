@@ -26,4 +26,29 @@ public final class Team implements Serializable {
     public int getTeamNumber() {
         return teamNumber;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Team) {
+            return teamNumber == ((Team) obj).teamNumber;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 71 * hash + this.teamNumber;
+        return hash;
+    }
+
+    @Override
+    public String toString() {
+        if (teamName.equals(NO_NAME)) {
+            return "Team " + teamNumber;
+        } else {
+            return "Team " + teamNumber + " - " + teamName;
+        }
+    }
 }

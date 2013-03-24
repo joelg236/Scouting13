@@ -2,23 +2,26 @@ package edu.ata.scouting;
 
 import edu.ata.scouting.points.Points;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MatchData {
+public final class MatchData {
 
-    private ArrayList<Points> points;
+    private final Match match;
+    private List<Points> points;
     private TeamMatch.RobotType robotType;
     private TeamMatch.StartingPosition startingPosition;
-    private ArrayList<TeamMatch.Intake> intakes;
+    private List<TeamMatch.Intake> intakes;
     private TeamMatch.ShooterType shooterType;
     private TeamMatch.MatchResult matchResult;
     private TeamMatch.AutoDiscCount autoDiscCount;
-    private HashMap<TeamMatch.NoteType, String> notes;
+    private Map<TeamMatch.NoteType, String> notes;
 
-    public MatchData() {
+    public MatchData(Match match) {
+        this.match = match;
         points = new ArrayList<>();
         robotType = TeamMatch.RobotType.Unknown;
         startingPosition = TeamMatch.StartingPosition.Unknown;
@@ -30,6 +33,7 @@ public class MatchData {
     }
 
     public MatchData(MatchData matchData) {
+        this.match = matchData.match;
         points = matchData.points;
         robotType = matchData.robotType;
         startingPosition = matchData.startingPosition;
@@ -38,6 +42,18 @@ public class MatchData {
         matchResult = matchData.matchResult;
         autoDiscCount = matchData.autoDiscCount;
         notes = matchData.notes;
+    }
+
+    public MatchData(TeamMatch match) {
+        this.match = match.getMatch();
+        points = Arrays.asList(match.getPoints());
+        robotType = match.getRobotType();
+        startingPosition = match.getStartingPosition();
+        intakes = Arrays.asList(match.getIntakes());
+        shooterType = match.getShooterType();
+        matchResult = match.getMatchResult();
+        autoDiscCount = match.getAutoDiscCount();
+        notes = match.getNotes();
     }
 
     public void addPoints(Points p) {
@@ -82,6 +98,10 @@ public class MatchData {
         notes.put(noteType, note);
     }
 
+    public Match getMatch() {
+        return match;
+    }
+
     public List<Points> getPoints() {
         return Collections.unmodifiableList(points);
     }
@@ -112,5 +132,10 @@ public class MatchData {
 
     public Map<TeamMatch.NoteType, String> getNotes() {
         return Collections.unmodifiableMap(notes);
+    }
+
+    @Override
+    public String toString() {
+        return "Data for match " + match;
     }
 }

@@ -9,6 +9,7 @@ public final class TeamMatch implements Serializable {
 
     private static final long serialVersionUID = Scouter.serialVersionUID;
     private final Team team;
+    private final Match match;
     private final Points[] points;
     private final RobotType robotType;
     private final StartingPosition startingPosition;
@@ -20,6 +21,7 @@ public final class TeamMatch implements Serializable {
 
     public TeamMatch(Team team, MatchData matchData) {
         this(team,
+                matchData.getMatch(),
                 matchData.getPoints().toArray(new Points[matchData.getPoints().size()]),
                 matchData.getRobotType(),
                 matchData.getStartingPosition(),
@@ -30,15 +32,16 @@ public final class TeamMatch implements Serializable {
                 matchData.getNotes());
     }
 
-    public TeamMatch(Team team, Points[] points, RobotType robotType,
+    public TeamMatch(Team team, Match match, Points[] points, RobotType robotType,
             StartingPosition startingPosition, Intake[] intakes, ShooterType shooterType,
             MatchResult matchResult, AutoDiscCount autoDiscCount, Map<NoteType, String> notes) {
-        if (team == null || points == null || robotType == null || startingPosition == null
-                || intakes == null || shooterType == null || matchResult == null
-                || autoDiscCount == null || notes == null) {
+        if (team == null || match == null || points == null || robotType == null
+                || startingPosition == null || intakes == null || shooterType == null
+                || matchResult == null || autoDiscCount == null || notes == null) {
             throw new NullPointerException();
         }
         this.team = team;
+        this.match = match;
         this.points = points;
         this.robotType = robotType;
         this.startingPosition = startingPosition;
@@ -51,6 +54,18 @@ public final class TeamMatch implements Serializable {
 
     public Team getTeam() {
         return team;
+    }
+
+    public Match getMatch() {
+        return match;
+    }
+
+    public int getScore() {
+        int score = 0;
+        for (Points p : points) {
+            score += p.getPoints();
+        }
+        return score;
     }
 
     public Points[] getPoints() {
@@ -91,6 +106,11 @@ public final class TeamMatch implements Serializable {
 
     public String getTeamNotes() {
         return notes.get(NoteType.TeamNote);
+    }
+
+    @Override
+    public String toString() {
+        return team + " in match " + match;
     }
 
     public static enum RobotType {

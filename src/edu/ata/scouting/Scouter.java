@@ -1,17 +1,18 @@
 package edu.ata.scouting;
 
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 public class Scouter {
 
     public static final long serialVersionUID = 29122L;
-    private static JFrame main;
+    public static final String scoutingDir = System.getProperty("user.home")
+            + System.getProperty("file.separator") + "scouting" + System.getProperty("file.separator");
+    private static MainWindow main;
 
-    public static JFrame getMain() {
-        if (main == null || !main.isVisible()) {
-            throw new NullPointerException("Main window not initialized.");
+    public static MainWindow getMain() {
+        if (main == null) {
+            main = new MainWindow();
         }
         return main;
     }
@@ -30,7 +31,7 @@ public class Scouter {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                (main = new MainWindow()).setVisible(true);
+                getMain().setVisible(true);
             }
         });
     }

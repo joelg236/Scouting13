@@ -1,10 +1,10 @@
 package edu.ata.scouting;
 
-// Immutable
-
 import java.io.Serializable;
+import java.util.Objects;
 
-public final class Match implements Serializable {
+// Immutable
+public final class Match implements Serializable, Comparable<Match> {
 
     private static final long serialVersionUID = Scouter.serialVersionUID;
     private final Alliance red, blue;
@@ -32,6 +32,43 @@ public final class Match implements Serializable {
 
     public MatchType getMatchType() {
         return matchType;
+    }
+
+    @Override
+    public int compareTo(Match o) {
+        int x;
+        x = matchType.compareTo(o.matchType);
+        if (x == 0) {
+            x = Integer.compare(matchNum, o.matchNum);
+        }
+        return x;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Match) {
+            return matchType == ((Match) obj).matchType
+                    && matchNum == ((Match) obj).matchNum
+                    && blue.equals(((Match) obj).blue)
+                    && red.equals(((Match) obj).red);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 53 * hash + Objects.hashCode(this.red);
+        hash = 53 * hash + Objects.hashCode(this.blue);
+        hash = 53 * hash + this.matchNum;
+        hash = 53 * hash + (this.matchType != null ? this.matchType.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public String toString() {
+        return matchType.shortVersion() + " " + matchNum;
     }
 
     public static enum MatchType {

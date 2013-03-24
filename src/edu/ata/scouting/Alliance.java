@@ -1,8 +1,8 @@
 package edu.ata.scouting;
 
 // Immutable
-
 import java.io.Serializable;
+import java.util.Objects;
 
 public final class Alliance implements Serializable {
 
@@ -25,5 +25,30 @@ public final class Alliance implements Serializable {
 
     public Team getTeam3() {
         return t3;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Alliance) {
+            return t1.equals(((Alliance) obj).t1)
+                    && t2.equals(((Alliance) obj).t2)
+                    && t3.equals(((Alliance) obj).t3);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 79 * hash + Objects.hashCode(this.t1);
+        hash = 79 * hash + Objects.hashCode(this.t2);
+        hash = 79 * hash + Objects.hashCode(this.t3);
+        return hash;
+    }
+
+    @Override
+    public String toString() {
+        return "Alliance " + t1 + ", " + t2 + " and " + t3;
     }
 }
