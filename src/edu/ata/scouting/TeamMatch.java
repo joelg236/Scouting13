@@ -3,7 +3,6 @@ package edu.ata.scouting;
 // Immutable
 import edu.ata.scouting.points.Points;
 import java.io.Serializable;
-import java.util.Map;
 
 public final class TeamMatch implements Serializable {
 
@@ -17,7 +16,8 @@ public final class TeamMatch implements Serializable {
     private final ShooterType shooterType;
     private final MatchResult matchResult;
     private final AutoDiscCount autoDiscCount;
-    private final Map<NoteType, String> notes;
+    private final String matchNote;
+    private final String teamNote;
 
     public TeamMatch(Team team, MatchData matchData) {
         this(team,
@@ -29,15 +29,16 @@ public final class TeamMatch implements Serializable {
                 matchData.getShooterType(),
                 matchData.getMatchResult(),
                 matchData.getAutoDiscCount(),
-                matchData.getNotes());
+                matchData.getNotes().get(NoteType.MatchNote),
+                matchData.getNotes().get(NoteType.TeamNote));
     }
 
     public TeamMatch(Team team, Match match, Points[] points, RobotType robotType,
             StartingPosition startingPosition, Intake[] intakes, ShooterType shooterType,
-            MatchResult matchResult, AutoDiscCount autoDiscCount, Map<NoteType, String> notes) {
+            MatchResult matchResult, AutoDiscCount autoDiscCount, String matchNote, String teamNote) {
         if (team == null || match == null || points == null || robotType == null
                 || startingPosition == null || intakes == null || shooterType == null
-                || matchResult == null || autoDiscCount == null || notes == null) {
+                || matchResult == null || autoDiscCount == null || matchNote == null || teamNote == null) {
             throw new NullPointerException();
         }
         this.team = team;
@@ -49,7 +50,8 @@ public final class TeamMatch implements Serializable {
         this.shooterType = shooterType;
         this.matchResult = matchResult;
         this.autoDiscCount = autoDiscCount;
-        this.notes = notes;
+        this.matchNote = matchNote;
+        this.teamNote = teamNote;
     }
 
     public Team getTeam() {
@@ -96,16 +98,12 @@ public final class TeamMatch implements Serializable {
         return autoDiscCount;
     }
 
-    public Map<NoteType, String> getNotes() {
-        return notes;
-    }
-
     public String getMatchNotes() {
-        return notes.get(NoteType.MatchNote);
+        return matchNote;
     }
 
     public String getTeamNotes() {
-        return notes.get(NoteType.TeamNote);
+        return teamNote;
     }
 
     @Override

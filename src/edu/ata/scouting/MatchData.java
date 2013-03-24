@@ -3,7 +3,6 @@ package edu.ata.scouting;
 import edu.ata.scouting.points.Points;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +52,9 @@ public final class MatchData {
         shooterType = match.getShooterType();
         matchResult = match.getMatchResult();
         autoDiscCount = match.getAutoDiscCount();
-        notes = match.getNotes();
+        notes = new HashMap<>();
+        notes.put(TeamMatch.NoteType.MatchNote, match.getMatchNotes());
+        notes.put(TeamMatch.NoteType.TeamNote, match.getTeamNotes());
     }
 
     public void addPoints(Points p) {
@@ -103,7 +104,45 @@ public final class MatchData {
     }
 
     public List<Points> getPoints() {
-        return Collections.unmodifiableList(points);
+        return points;
+    }
+
+    public int autoPoints() {
+        int x = 0;
+        for (Points p : points) {
+            if (p instanceof Points.AutoPoints) {
+                x += p.getPoints();
+            }
+        }
+        return x;
+    }
+
+    public int telePoints() {
+        int x = 0;
+        for (Points p : points) {
+            if (p instanceof Points.TelePoints) {
+                x += p.getPoints();
+            }
+        }
+        return x;
+    }
+
+    public int climbPoints() {
+        int x = 0;
+        for (Points p : points) {
+            if (p instanceof Points.ClimbPoints) {
+                x += p.getPoints();
+            }
+        }
+        return x;
+    }
+
+    public int fullPoints() {
+        int x = 0;
+        for (Points p : points) {
+            x += p.getPoints();
+        }
+        return x;
     }
 
     public TeamMatch.RobotType getRobotType() {
@@ -115,7 +154,7 @@ public final class MatchData {
     }
 
     public List<TeamMatch.Intake> getIntakes() {
-        return Collections.unmodifiableList(intakes);
+        return intakes;
     }
 
     public TeamMatch.ShooterType getShooterType() {
@@ -131,7 +170,7 @@ public final class MatchData {
     }
 
     public Map<TeamMatch.NoteType, String> getNotes() {
-        return Collections.unmodifiableMap(notes);
+        return notes;
     }
 
     @Override
