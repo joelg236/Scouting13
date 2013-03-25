@@ -1,5 +1,6 @@
 package edu.ata.scouting;
 
+import edu.ata.scouting.decompiling.Decompiler;
 import edu.ata.scouting.user.NewMatch;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -94,6 +95,18 @@ public final class MainWindow extends JFrame {
         });
         save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
 
+        JMenuItem decompile = new JMenuItem("Decompile All");
+        decompile.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ArrayList<TeamMatch> all = new ArrayList<>();
+                for(ArrayList<TeamMatch> m : matches.values()) {
+                    all.addAll(m);
+                }
+                new Decompiler(all, matchListName).decompileAll();
+            }
+        });
+
         JMenuItem newMatch = new JMenuItem("New Match");
         newMatch.addActionListener(new ActionListener() {
             @Override
@@ -103,6 +116,7 @@ public final class MainWindow extends JFrame {
         });
 
         file.add(save);
+        file.add(decompile);
         edit.add(newMatch);
 
         bar.add(file);

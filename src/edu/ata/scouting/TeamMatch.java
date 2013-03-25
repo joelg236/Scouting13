@@ -4,7 +4,7 @@ package edu.ata.scouting;
 import edu.ata.scouting.points.Points;
 import java.io.Serializable;
 
-public final class TeamMatch implements Serializable {
+public final class TeamMatch implements Serializable, Comparable<TeamMatch> {
 
     private static final long serialVersionUID = Scouter.serialVersionUID;
     private final Team team;
@@ -110,6 +110,11 @@ public final class TeamMatch implements Serializable {
 
     public String getTeamNotes() {
         return teamNote;
+    }
+
+    @Override
+    public int compareTo(TeamMatch o) {
+        return match.compareTo(o.match);
     }
 
     @Override

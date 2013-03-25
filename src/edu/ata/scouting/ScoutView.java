@@ -1,5 +1,6 @@
 package edu.ata.scouting;
 
+import edu.ata.scouting.decompiling.Decompiler;
 import edu.ata.scouting.points.Points;
 import edu.ata.scouting.points.auto.FourPointAuto;
 import edu.ata.scouting.points.auto.SixPointAuto;
@@ -43,6 +44,7 @@ public final class ScoutView extends JDialog {
     private JTextArea teamNotes;
     private JCheckBox ground;
     private JCheckBox feeder;
+    private boolean climbStopped = false;
 
     public ScoutView(Team team, MatchData match) {
         super(Scouter.getMain(), match.toString());
@@ -87,11 +89,11 @@ public final class ScoutView extends JDialog {
         private final JLabel finalScore, autoScore, teleScore, climbScore, foulScore;
 
         public ScoreDisplay() {
-            this.finalScore = new JLabel("Final Score : " + total());
-            this.autoScore = new JLabel("Auto Score : " + auto());
-            this.teleScore = new JLabel("Teleop Score : " + tele());
-            this.climbScore = new JLabel("Climb Score : " + climb());
-            this.foulScore = new JLabel("Foul Points : " + foul());
+            this.finalScore = new JLabel("Final Score : " + Decompiler.total(match));
+            this.autoScore = new JLabel("Auto Score : " + Decompiler.auto(match));
+            this.teleScore = new JLabel("Teleop Score : " + Decompiler.tele(match));
+            this.climbScore = new JLabel("Climb Score : " + Decompiler.climb(match));
+            this.foulScore = new JLabel("Foul Points : " + Decompiler.foul(match));
             Font f = finalScore.getFont().deriveFont(Font.BOLD, 24);
             this.finalScore.setFont(f);
             this.finalScore.setHorizontalAlignment(SwingConstants.CENTER);
@@ -113,60 +115,12 @@ public final class ScoutView extends JDialog {
             add(foulScore);
         }
 
-        private int total() {
-            int x = 0;
-            for (Points p : match.getPoints()) {
-                x += p.getPoints();
-            }
-            return x;
-        }
-
-        private int auto() {
-            int x = 0;
-            for (Points p : match.getPoints()) {
-                if (p instanceof Points.AutoPoints) {
-                    x += p.getPoints();
-                }
-            }
-            return x;
-        }
-
-        private int tele() {
-            int x = 0;
-            for (Points p : match.getPoints()) {
-                if (p instanceof Points.TelePoints) {
-                    x += p.getPoints();
-                }
-            }
-            return x;
-        }
-
-        private int climb() {
-            int x = 0;
-            for (Points p : match.getPoints()) {
-                if (p instanceof Points.ClimbPoints) {
-                    x += p.getPoints();
-                }
-            }
-            return x;
-        }
-
-        private int foul() {
-            int x = 0;
-            for (Points p : match.getPoints()) {
-                if (p instanceof Points.FoulPoints) {
-                    x += p.getPoints();
-                }
-            }
-            return -x;
-        }
-
         private void update() {
-            finalScore.setText("Final Score : " + total());
-            autoScore.setText("Auto Score : " + auto());
-            teleScore.setText("Teleop Score : " + tele());
-            climbScore.setText("Climb Score : " + climb());
-            foulScore.setText("Foul Points : " + foul());
+            finalScore.setText("Final Score : " + Decompiler.total(match));
+            autoScore.setText("Auto Score : " + Decompiler.auto(match));
+            teleScore.setText("Teleop Score : " + Decompiler.tele(match));
+            climbScore.setText("Climb Score : " + Decompiler.climb(match));
+            foulScore.setText("Foul Points : " + Decompiler.foul(match));
         }
     }
 
@@ -341,7 +295,6 @@ public final class ScoutView extends JDialog {
         private final JLabel climbTimer = new JLabel(String.format("%.2f",
                 match.getClimb() != null ? match.getClimb().getClimbTime() : 0));
         private double startTime = System.currentTimeMillis();
-        private boolean climbStopped = false;
 
         public ClimbDisplay() {
             super(LayoutFactory.createLayout());
@@ -378,6 +331,7 @@ public final class ScoutView extends JDialog {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     startTime = System.currentTimeMillis() / 1000;
+                    climbStopped = false;
                     final Timer t = new Timer();
                     t.scheduleAtFixedRate(new TimerTask() {
                         @Override
@@ -601,6 +555,7 @@ public final class ScoutView extends JDialog {
                     match.setNote(TeamMatch.NoteType.MatchNote, matchNotes.getText());
                     match.setNote(TeamMatch.NoteType.TeamNote, teamNotes.getText());
                     Scouter.getMain().putMatch(team, match);
+                    climbStopped = true;
                     dispose();
                 }
             }
@@ -617,6 +572,7 @@ public final class ScoutView extends JDialog {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
+                    climbStopped = true;
                     dispose();
                 }
             }
