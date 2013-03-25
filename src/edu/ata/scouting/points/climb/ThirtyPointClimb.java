@@ -7,7 +7,7 @@ public class ThirtyPointClimb extends Points.ClimbPoints {
 
     private static final long serialVersionUID = Scouter.serialVersionUID;
 
-    public ThirtyPointClimb() {
-        super(30);
+    public ThirtyPointClimb(double climbTime) {
+        super(30, climbTime);
     }
 }

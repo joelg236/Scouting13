@@ -1,6 +1,6 @@
 package edu.ata.scouting;
 
-import static edu.ata.scouting.Scouter.mainWindow;
+import edu.ata.scouting.decompiling.Decompiler;
 import edu.ata.scouting.points.Points;
 import edu.ata.scouting.points.auto.FourPointAuto;
 import edu.ata.scouting.points.auto.SixPointAuto;
@@ -25,33 +25,35 @@ import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.border.BevelBorder;
 
-/**
- *
- * @author Joel Gallant <joelgallant236@gmail.com>
- */
-public final class TeamMatchDisplay extends JDialog {
+public final class ScoutView extends JDialog {
 
     private static final Font buttonFont = new Font("Default", Font.BOLD, 18);
-    private final TeamMatch match;
+    private final MatchData match;
+    private final Team team;
     private final ScoreDisplay scoreDisplay;
-    private JTextArea notes;
+    private JTextArea matchNotes;
+    private JTextArea teamNotes;
     private JCheckBox ground;
     private JCheckBox feeder;
+    private boolean climbStopped = false;
 
-    public TeamMatchDisplay(TeamMatch match) {
-        super(mainWindow, match.toString());
+    public ScoutView(Team team, MatchData match) {
+        super(Scouter.getMain(), match.toString());
         this.match = match;
-        this.notes = new JTextArea(match.getNotes());
-        this.ground = new JCheckBox("Ground Pickup", match.getIntakeTypes().contains(TeamMatch.GROUND));
-        this.feeder = new JCheckBox("Feeder Station", match.getIntakeTypes().contains(TeamMatch.FEEDER));
+        this.team = team;
+        this.matchNotes = new JTextArea(match.getNotes().get(TeamMatch.NoteType.MatchNote));
+        this.teamNotes = new JTextArea(match.getNotes().get(TeamMatch.NoteType.TeamNote));
+        this.ground = new JCheckBox("Ground Pickup", match.getIntakes().contains(TeamMatch.Intake.GroundPickup));
+        this.feeder = new JCheckBox("Feeder Station", match.getIntakes().contains(TeamMatch.Intake.FeederStation));
         setRootPane(new JRootPane());
         setRootPaneCheckingEnabled(true);
         setLayout(LayoutFactory.createLayout());
@@ -73,9 +75,8 @@ public final class TeamMatchDisplay extends JDialog {
         add(new ControlDisplay(), factory.setX(0).setY(6));
 
         setAlwaysOnTop(true);
-        setUndecorated(true);
         setBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
-        setLocationRelativeTo(Scouter.mainWindow);
+        setLocationRelativeTo(Scouter.getMain());
     }
 
     private void addScore(Points points) {
@@ -88,11 +89,11 @@ public final class TeamMatchDisplay extends JDialog {
         private final JLabel finalScore, autoScore, teleScore, climbScore, foulScore;
 
         public ScoreDisplay() {
-            this.finalScore = new JLabel("Final Score : " + total());
-            this.autoScore = new JLabel("Auto Score : " + auto());
-            this.teleScore = new JLabel("Teleop Score : " + tele());
-            this.climbScore = new JLabel("Climb Score : " + climb());
-            this.foulScore = new JLabel("Foul Points : " + foul());
+            this.finalScore = new JLabel("Final Score : " + Decompiler.total(match));
+            this.autoScore = new JLabel("Auto Score : " + Decompiler.auto(match));
+            this.teleScore = new JLabel("Teleop Score : " + Decompiler.tele(match));
+            this.climbScore = new JLabel("Climb Score : " + Decompiler.climb(match));
+            this.foulScore = new JLabel("Foul Points : " + Decompiler.foul(match));
             Font f = finalScore.getFont().deriveFont(Font.BOLD, 24);
             this.finalScore.setFont(f);
             this.finalScore.setHorizontalAlignment(SwingConstants.CENTER);
@@ -114,60 +115,12 @@ public final class TeamMatchDisplay extends JDialog {
             add(foulScore);
         }
 
-        private int total() {
-            int x = 0;
-            for (Points p : match.getPoints()) {
-                x += p.getPoints();
-            }
-            return x;
-        }
-
-        private int auto() {
-            int x = 0;
-            for (Points p : match.getPoints()) {
-                if (p instanceof Points.AutoPoints) {
-                    x += p.getPoints();
-                }
-            }
-            return x;
-        }
-
-        private int tele() {
-            int x = 0;
-            for (Points p : match.getPoints()) {
-                if (p instanceof Points.TelePoints) {
-                    x += p.getPoints();
-                }
-            }
-            return x;
-        }
-
-        private int climb() {
-            int x = 0;
-            for (Points p : match.getPoints()) {
-                if (p instanceof Points.ClimbPoints) {
-                    x += p.getPoints();
-                }
-            }
-            return x;
-        }
-
-        private int foul() {
-            int x = 0;
-            for (Points p : match.getPoints()) {
-                if (p instanceof Points.FoulPoints) {
-                    x += p.getPoints();
-                }
-            }
-            return -x;
-        }
-
         private void update() {
-            finalScore.setText("Final Score : " + total());
-            autoScore.setText("Auto Score : " + auto());
-            teleScore.setText("Teleop Score : " + tele());
-            climbScore.setText("Climb Score : " + climb());
-            foulScore.setText("Foul Points : " + foul());
+            finalScore.setText("Final Score : " + Decompiler.total(match));
+            autoScore.setText("Auto Score : " + Decompiler.auto(match));
+            teleScore.setText("Teleop Score : " + Decompiler.tele(match));
+            climbScore.setText("Climb Score : " + Decompiler.climb(match));
+            foulScore.setText("Foul Points : " + Decompiler.foul(match));
         }
     }
 
@@ -290,15 +243,15 @@ public final class TeamMatchDisplay extends JDialog {
         public StartDisplay() {
             startingPosition.setFont(startingPosition.getFont().deriveFont(Font.BOLD, 22));
             startingPosition.setHorizontalAlignment(SwingConstants.CENTER);
-            JButton front = new Position("Front");
-            JButton frontLeft = new Position("Front Left");
-            JButton frontRight = new Position("Front Right");
-            JButton left = new Position("Left");
-            JButton middle = new Position("Middle");
-            JButton right = new Position("Right");
-            JButton backLeft = new Position("Back Left");
-            JButton backRight = new Position("Back Right");
-            JButton back = new Position("Back");
+            JButton front = new Position(TeamMatch.StartingPosition.FrontMiddle);
+            JButton frontLeft = new Position(TeamMatch.StartingPosition.FrontLeft);
+            JButton frontRight = new Position(TeamMatch.StartingPosition.FrontRight);
+            JButton left = new Position(TeamMatch.StartingPosition.Left);
+            JButton middle = new Position(TeamMatch.StartingPosition.Middle);
+            JButton right = new Position(TeamMatch.StartingPosition.Right);
+            JButton backLeft = new Position(TeamMatch.StartingPosition.BackLeft);
+            JButton backRight = new Position(TeamMatch.StartingPosition.BackRight);
+            JButton back = new Position(TeamMatch.StartingPosition.BackMiddle);
 
             setLayout(LayoutFactory.createLayout());
             LayoutFactory factory = LayoutFactory.newFactory();
@@ -316,10 +269,10 @@ public final class TeamMatchDisplay extends JDialog {
 
         private final class Position extends JButton {
 
-            private final String position;
+            private final TeamMatch.StartingPosition position;
 
-            public Position(String position) {
-                super(position);
+            public Position(TeamMatch.StartingPosition position) {
+                super(position.toString());
                 this.position = position;
                 setFont(buttonFont);
                 addActionListener(new SetPosition());
@@ -339,9 +292,9 @@ public final class TeamMatchDisplay extends JDialog {
     private final class ClimbDisplay extends JPanel {
 
         private final Color climbColor = Color.BLUE;
-        private final JLabel climbTimer = new JLabel(String.format("%.2f", match.getClimbTime()));
-        private boolean climbed = false;
-        private double startTime = 0;
+        private final JLabel climbTimer = new JLabel(String.format("%.2f",
+                match.getClimb() != null ? match.getClimb().getClimbTime() : 0));
+        private double startTime = System.currentTimeMillis();
 
         public ClimbDisplay() {
             super(LayoutFactory.createLayout());
@@ -377,17 +330,18 @@ public final class TeamMatchDisplay extends JDialog {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    climbed = false;
                     startTime = System.currentTimeMillis() / 1000;
+                    climbStopped = false;
                     final Timer t = new Timer();
                     t.scheduleAtFixedRate(new TimerTask() {
                         @Override
                         public void run() {
-                            if (climbed) {
-                                match.setClimbTime((System.currentTimeMillis() / 1000.0) - (long) startTime);
-                                t.cancel();
-                            }
                             climbTimer.setText(String.format("%.2f", (double) (System.currentTimeMillis() / 1000.0) - (long) startTime));
+                            if (climbStopped) {
+                                t.cancel();
+                                climbTimer.setText(String.format("%.2f",
+                                        match.getClimb() != null ? match.getClimb().getClimbTime() : 0));
+                            }
                         }
                     }, 0, 20);
                 }
@@ -411,20 +365,21 @@ public final class TeamMatchDisplay extends JDialog {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     Points p;
+                    climbStopped = true;
+                    double climbTime = (double) (System.currentTimeMillis() / 1000.0) - (long) startTime;
                     switch (points) {
                         case (10):
-                            p = new TenPointClimb();
+                            p = new TenPointClimb(climbTime);
                             break;
                         case (20):
-                            p = new TwentyPointClimb();
+                            p = new TwentyPointClimb(climbTime);
                             break;
                         case (30):
-                            p = new ThirtyPointClimb();
+                            p = new ThirtyPointClimb(climbTime);
                             break;
                         default:
-                            p = new TenPointClimb();
+                            p = new TenPointClimb(climbTime);
                     }
-                    climbed = true;
                     addScore(p);
                 }
             }
@@ -484,49 +439,47 @@ public final class TeamMatchDisplay extends JDialog {
 
     private final class RobotNotes extends JPanel {
 
-        private JTextField robotType = new JTextField(match.getRobotType().toString());
+        private JComboBox<TeamMatch.RobotType> robotType = new RobotType();
 
         public RobotNotes() {
             super(LayoutFactory.createLayout());
             JLabel robotTypeLabel = new JLabel("Robot Type");
             robotTypeLabel.setFont(robotTypeLabel.getFont().deriveFont(Font.BOLD, 22));
             robotTypeLabel.setHorizontalAlignment(SwingConstants.CENTER);
-            JButton offense = new TypeButton(TeamMatch.OFFENSIVE);
-            JButton defense = new TypeButton(TeamMatch.DEFENSIVE);
-            JLabel notesLabel = new JLabel("Notes");
-            notesLabel.setFont(robotTypeLabel.getFont());
-            notesLabel.setHorizontalAlignment(SwingConstants.CENTER);
-            robotType.setEditable(false);
+            JLabel matchNotesLabel = new JLabel("Match Notes");
+            JLabel teamNotesLabel = new JLabel("Team Notes");
+            matchNotesLabel.setFont(robotTypeLabel.getFont());
+            matchNotesLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            teamNotesLabel.setFont(matchNotesLabel.getFont());
+            teamNotesLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            robotType.setSelectedItem(match.getRobotType());
             ground.setHorizontalAlignment(SwingConstants.RIGHT);
+            matchNotes.setBorder(new BevelBorder(BevelBorder.LOWERED));
+            teamNotes.setBorder(new BevelBorder(BevelBorder.LOWERED));
 
-            LayoutFactory factory = LayoutFactory.newFactory();
-            add(robotTypeLabel, factory.setWidth(3));
+            LayoutFactory factory = LayoutFactory.newFactory().setInsets(new Insets(3, 5, 3, 5));
+            add(robotTypeLabel, factory.setWidth(2));
             add(ground, factory.setY(1).setWidth(1));
-            add(feeder, factory.setX(2));
-            add(robotType, factory.setY(2).setX(0));
-            add(offense, factory.setX(1));
-            add(defense, factory.setX(2));
-            add(notesLabel, factory.setY(3).setX(0).setWidth(3));
-            add(notes, factory.setY(4));
+            add(feeder, factory.setX(1));
+            add(robotType, factory.setY(2).setX(0).setWidth(2));
+            add(matchNotesLabel, factory.setY(3).setX(0).setWidth(1));
+            add(teamNotesLabel, factory.setX(1));
+            add(matchNotes, factory.setY(4).setX(0));
+            add(teamNotes, factory.setX(1));
         }
 
-        private final class TypeButton extends JButton {
+        private class RobotType extends JComboBox<TeamMatch.RobotType> {
 
-            private final TeamMatch.RobotType type;
-
-            public TypeButton(TeamMatch.RobotType type) {
-                super(type.toString());
-                this.type = type;
-                setFont(buttonFont);
-                addActionListener(new ChangeType());
+            public RobotType() {
+                super(TeamMatch.RobotType.values());
+                addActionListener(new SetRobotType());
             }
 
-            private final class ChangeType implements ActionListener {
+            private class SetRobotType implements ActionListener {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    match.setRobotType(type);
-                    robotType.setText(match.getRobotType().toString());
+                    match.setRobotType((TeamMatch.RobotType) getSelectedItem());
                 }
             }
         }
@@ -534,7 +487,7 @@ public final class TeamMatchDisplay extends JDialog {
 
     private final class WinLossDisplay extends JPanel {
 
-        private final JLabel winLabel = new JLabel("Result - " + match.getWin().toString());
+        private final JLabel winLabel = new JLabel("Result - " + match.getMatchResult());
 
         public WinLossDisplay() {
             super(LayoutFactory.createLayout());
@@ -562,8 +515,8 @@ public final class TeamMatchDisplay extends JDialog {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    match.setWin(win ? TeamMatch.WIN : TeamMatch.LOSS);
-                    winLabel.setText("Result - " + match.getWin().toString());
+                    match.setMatchResult(win ? TeamMatch.MatchResult.Win : TeamMatch.MatchResult.Loss);
+                    winLabel.setText("Result - " + match.getMatchResult());
                 }
             }
         }
@@ -590,17 +543,19 @@ public final class TeamMatchDisplay extends JDialog {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     if (ground.isSelected()) {
-                        match.addIntake(TeamMatch.GROUND);
+                        match.addIntake(TeamMatch.Intake.GroundPickup);
                     } else {
-                        match.removeIntake(TeamMatch.GROUND);
+                        match.removeIntake(TeamMatch.Intake.GroundPickup);
                     }
                     if (feeder.isSelected()) {
-                        match.addIntake(TeamMatch.FEEDER);
+                        match.addIntake(TeamMatch.Intake.FeederStation);
                     } else {
-                        match.removeIntake(TeamMatch.FEEDER);
+                        match.removeIntake(TeamMatch.Intake.FeederStation);
                     }
-                    match.setNotes(notes.getText());
-                    Scouter.mainWindow.addTeamMatch(match);
+                    match.setNote(TeamMatch.NoteType.MatchNote, matchNotes.getText());
+                    match.setNote(TeamMatch.NoteType.TeamNote, teamNotes.getText());
+                    Scouter.getMain().putMatch(team, match);
+                    climbStopped = true;
                     dispose();
                 }
             }
@@ -617,6 +572,7 @@ public final class TeamMatchDisplay extends JDialog {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
+                    climbStopped = true;
                     dispose();
                 }
             }
@@ -633,7 +589,7 @@ public final class TeamMatchDisplay extends JDialog {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    match.removeLastPoints();
+                    match.popLastPoints();
                     scoreDisplay.update();
                 }
             }

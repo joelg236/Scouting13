@@ -1,201 +1,162 @@
 package edu.ata.scouting;
 
+// Immutable
 import edu.ata.scouting.points.Points;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
 
 public final class TeamMatch implements Serializable, Comparable<TeamMatch> {
 
     private static final long serialVersionUID = Scouter.serialVersionUID;
-    public static final RobotType OFFENSIVE = new RobotType(RobotType.OFF),
-            DEFENSIVE = new RobotType(RobotType.DEF);
-    public static final Intake GROUND = new Intake(Intake.GROUND),
-            FEEDER = new Intake(Intake.FEEDER);
-    public static final Win WIN = new Win(Win.win, true),
-            LOSS = new Win(Win.loss, false),
-            UNKNOWN = new Win(Win.unknown, false);
-    private final Match match;
     private final Team team;
-    private final ArrayList<Points> points = new ArrayList<>();
-    private double climbTime = 0;
-    private RobotType type = new RobotType("Unknown");
-    private ArrayList<Intake> intake = new ArrayList<>();
-    private Win win = UNKNOWN;
-    private String startingPosition = "Unknown";
-    private String notes = "";
+    private final Match match;
+    private final Points[] points;
+    private final RobotType robotType;
+    private final StartingPosition startingPosition;
+    private final Intake[] intakes;
+    private final ShooterType shooterType;
+    private final MatchResult matchResult;
+    private final AutoDiscCount autoDiscCount;
+    private final String matchNote;
+    private final String teamNote;
 
-    public TeamMatch(int teamNumber, Match match) throws NoSuchFieldException {
+    public TeamMatch(Team team, MatchData matchData) {
+        this(team,
+                matchData.getMatch(),
+                matchData.getPoints().toArray(new Points[matchData.getPoints().size()]),
+                matchData.getRobotType(),
+                matchData.getStartingPosition(),
+                matchData.getIntakes().toArray(new Intake[matchData.getIntakes().size()]),
+                matchData.getShooterType(),
+                matchData.getMatchResult(),
+                matchData.getAutoDiscCount(),
+                matchData.getNotes().get(NoteType.MatchNote),
+                matchData.getNotes().get(NoteType.TeamNote));
+    }
+
+    public TeamMatch(Team team, Match match, Points[] points, RobotType robotType,
+            StartingPosition startingPosition, Intake[] intakes, ShooterType shooterType,
+            MatchResult matchResult, AutoDiscCount autoDiscCount, String matchNote, String teamNote) {
+        if (team == null || match == null || points == null || robotType == null
+                || startingPosition == null || intakes == null || shooterType == null
+                || matchResult == null || autoDiscCount == null) {
+            throw new NullPointerException();
+        }
+        if(matchNote == null) {
+            matchNote = "";
+        }
+        if(teamNote == null) {
+            teamNote = "";
+        }
+        this.team = team;
         this.match = match;
-        this.team = match.getTeam(teamNumber);
-        if (this.team == null) {
-            throw new IllegalArgumentException("TeamMatch was made in a match without the team.");
-        }
-    }
-
-    public void addPoints(Points points) {
-        this.points.add(points);
-    }
-
-    public void removePoints(Points points) {
-        this.points.remove(points);
-    }
-
-    public void removeLastPoints() {
-        if (points.size() > 0) {
-            points.remove(points.size() - 1);
-        }
-    }
-
-    public void setClimbTime(double climbTime) {
-        this.climbTime = climbTime;
-    }
-
-    public void setRobotType(RobotType type) {
-        this.type = type;
-    }
-
-    public void addIntake(Intake intake) {
-        if (!this.intake.contains(intake)) {
-            this.intake.add(intake);
-        }
-    }
-    
-    public void removeIntake(Intake intake) {
-        this.intake.remove(intake);
-    }
-
-    public void setWin(Win win) {
-        this.win = win;
-    }
-
-    public void setStartingPosition(String startingPosition) {
+        this.points = points;
+        this.robotType = robotType;
         this.startingPosition = startingPosition;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
-
-    public List<Points> getPoints() {
-        return Collections.unmodifiableList(points);
-    }
-
-    public double getClimbTime() {
-        return climbTime;
-    }
-
-    public RobotType getRobotType() {
-        return type;
-    }
-
-    public List<Intake> getIntakeTypes() {
-        return Collections.unmodifiableList(intake);
-    }
-
-    public Win getWin() {
-        return win;
-    }
-
-    public String getStartingPosition() {
-        return startingPosition;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public Match getMatch() {
-        return match;
+        this.intakes = intakes;
+        this.shooterType = shooterType;
+        this.matchResult = matchResult;
+        this.autoDiscCount = autoDiscCount;
+        this.matchNote = matchNote;
+        this.teamNote = teamNote;
     }
 
     public Team getTeam() {
         return team;
     }
 
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        try {
-            return new TeamMatch(team.getTeamNumber(), match);
-        } catch (NoSuchFieldException ex) {
-            throw new CloneNotSupportedException(ex.getMessage());
-        }
+    public Match getMatch() {
+        return match;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        return (obj instanceof TeamMatch)
-                ? ((TeamMatch) obj).match.equals(this.match)
-                && ((TeamMatch) obj).team.equals(this.team)
-                : false;
+    public int getScore() {
+        int score = 0;
+        for (Points p : points) {
+            score += p.getPoints();
+        }
+        return score;
+    }
+
+    public Points[] getPoints() {
+        return points;
+    }
+
+    public RobotType getRobotType() {
+        return robotType;
+    }
+
+    public StartingPosition getStartingPosition() {
+        return startingPosition;
+    }
+
+    public Intake[] getIntakes() {
+        return intakes;
+    }
+
+    public ShooterType getShooterType() {
+        return shooterType;
+    }
+
+    public MatchResult getMatchResult() {
+        return matchResult;
+    }
+
+    public AutoDiscCount getAutoDiscCount() {
+        return autoDiscCount;
+    }
+
+    public String getMatchNotes() {
+        return matchNote;
+    }
+
+    public String getTeamNotes() {
+        return teamNote;
     }
 
     @Override
     public int compareTo(TeamMatch o) {
-        return this.match.compareTo(o.match);
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 83 * hash + Objects.hashCode(this.match);
-        hash = 83 * hash + Objects.hashCode(this.team);
-        return hash;
+        return match.compareTo(o.match);
     }
 
     @Override
     public String toString() {
-        return team + " in " + match;
+        return team + " in match " + match;
     }
 
-    public static final class RobotType implements Serializable {
+    public static enum RobotType {
 
-        private static final long serialVersionUID = Scouter.serialVersionUID;
-        private static final String OFF = "Offensive", DEF = "Defensive";
-        private final String type;
-
-        private RobotType(String type) {
-            this.type = type;
-        }
-
-        @Override
-        public String toString() {
-            return type;
-        }
+        Unknown, Offensive, Defensive
     }
 
-    public static final class Intake implements Serializable {
+    public static enum StartingPosition {
 
-        private static final long serialVersionUID = Scouter.serialVersionUID;
-        private static final String GROUND = "Ground", FEEDER = "Feeder";
-        private final String type;
-
-        private Intake(String type) {
-            this.type = type;
-        }
+        Unknown,
+        FrontLeft, FrontMiddle, FrontRight,
+        Left, Middle, Right,
+        BackLeft, BackMiddle, BackRight
     }
 
-    public static final class Win implements Serializable {
+    public static enum Intake {
 
-        private static final long serialVersionUID = Scouter.serialVersionUID;
-        private static final String win = "Win", loss = "Loss", unknown = "Unknown";
-        private final String string;
-        private final boolean isWin;
+        FeederStation, GroundPickup
+    }
 
-        private Win(String string, boolean win) {
-            this.string = string;
-            this.isWin = win;
-        }
+    public static enum ShooterType {
 
-        public boolean isWin() {
-            return isWin;
-        }
+        NoShooter, Linear, Curved
+    }
 
-        @Override
-        public String toString() {
-            return string;
-        }
+    public static enum MatchResult {
+
+        Unknown, Win, Loss
+    }
+
+    public static enum AutoDiscCount {
+
+        NoDisc, TwoDisc, ThreeDisc, FiveDisc, SevenDisc, NineDisc
+    }
+
+    public static enum NoteType {
+
+        MatchNote, TeamNote
     }
 }

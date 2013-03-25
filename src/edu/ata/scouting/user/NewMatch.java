@@ -1,12 +1,17 @@
-package edu.ata.scouting;
+package edu.ata.scouting.user;
 
+import edu.ata.scouting.Alliance;
+import edu.ata.scouting.LayoutFactory;
+import edu.ata.scouting.Match;
+import edu.ata.scouting.Scouter;
+import edu.ata.scouting.Team;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -14,9 +19,9 @@ import javax.swing.JRootPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-public abstract class MatchCreationDialog extends JDialog {
+public final class NewMatch extends JDialog {
 
-    public MatchCreationDialog(Window owner) {
+    public NewMatch(Window owner) {
         super(owner, "Create Match");
         setRootPane(new JRootPane());
         setRootPaneCheckingEnabled(true);
@@ -39,19 +44,20 @@ public abstract class MatchCreationDialog extends JDialog {
         JTextField blue2 = new JTextField("0");
         JTextField blue3 = new JTextField("0");
 
-        JCheckBox eliminations = new JCheckBox("Elimination");
-
+        JComboBox<Match.MatchType> eliminations = new JComboBox<>(Match.MatchType.values());
+        eliminations.setSelectedItem(Match.MatchType.Qualifications);
+        
         JLabel matchNumberLabel = new JLabel("Match Number");
         JTextField matchNumber = new JTextField("0");
 
-        add(red, factory.setWidth(2));
-        add(blue, factory.setX(2));
-        add(red1, factory.setY(1).setX(0));
-        add(red2, factory.setY(2));
-        add(red3, factory.setY(3));
-        add(blue1, factory.setY(1).setX(2));
+        add(blue, factory.setWidth(2));
+        add(red, factory.setX(2));
+        add(blue1, factory.setY(1).setX(0));
         add(blue2, factory.setY(2));
         add(blue3, factory.setY(3));
+        add(red1, factory.setY(1).setX(2));
+        add(red2, factory.setY(2));
+        add(red3, factory.setY(3));
         add(eliminations, factory.setX(0).setY(4));
         add(matchNumberLabel, factory.setX(2).setWeightX(0).setWidth(1));
         add(matchNumber, factory.setX(3));
@@ -67,23 +73,17 @@ public abstract class MatchCreationDialog extends JDialog {
         add(cancel, factory.setX(2));
 
         setSize(450, 250);
-        setLocationRelativeTo(Scouter.mainWindow);
+        setLocationRelativeTo(Scouter.getMain());
     }
-
-    public void showDialog() {
-        setVisible(true);
-    }
-
-    public abstract void useMatch(Match newMatch);
 
     private final class CreateMatch implements ActionListener {
 
         private final JTextField[] blue;
         private final JTextField[] red;
-        private final JCheckBox elims;
+        private final JComboBox<Match.MatchType> elims;
         private final JTextField num;
 
-        public CreateMatch(JTextField[] blue, JTextField[] red, JCheckBox elims, JTextField match) {
+        public CreateMatch(JTextField[] blue, JTextField[] red, JComboBox<Match.MatchType> elims, JTextField match) {
             this.blue = blue;
             this.red = red;
             this.elims = elims;
@@ -99,13 +99,13 @@ public abstract class MatchCreationDialog extends JDialog {
                 Team red1 = new Team(Integer.parseInt(red[0].getText()));
                 Team red2 = new Team(Integer.parseInt(red[1].getText()));
                 Team red3 = new Team(Integer.parseInt(red[2].getText()));
-                boolean elimination = elims.isSelected();
                 int matchNum = Integer.parseInt(num.getText());
-                Match match = new Match(new Alliance(blue1, blue2, blue3), new Alliance(red1, red2, red3), elimination, matchNum);
+                Match match = new Match(new Alliance(red1, red2, red3), 
+                        new Alliance(blue1, blue2, blue3), matchNum, elims.getItemAt(elims.getSelectedIndex()));
                 dispose();
-                useMatch(match);
+                Scouter.getMain().createMatch(match);
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(Scouter.mainWindow, ex);
+                JOptionPane.showMessageDialog(Scouter.getMain(), ex);
             }
         }
     }

@@ -1,109 +1,95 @@
 package edu.ata.scouting;
 
 import java.io.Serializable;
+import java.util.Objects;
 
+// Immutable
 public final class Match implements Serializable, Comparable<Match> {
 
     private static final long serialVersionUID = Scouter.serialVersionUID;
-    private final Alliance blue;
-    private final Alliance red;
-    private final boolean eliminations;
-    private final int matchNumber;
+    private final Alliance red, blue;
+    private final int matchNum;
+    private final MatchType matchType;
 
-    public Match(Alliance blue, Alliance red, boolean eliminations, int matchNumber) {
-        this.blue = blue;
+    public Match(Alliance red, Alliance blue, int matchNum, MatchType matchType) {
         this.red = red;
-        this.eliminations = eliminations;
-        this.matchNumber = matchNumber;
+        this.blue = blue;
+        this.matchNum = matchNum;
+        this.matchType = matchType;
     }
 
-    public Match blue(Alliance firstAlliance) {
-        return new Match(firstAlliance, red, eliminations, matchNumber);
-    }
-
-    public Match red(Alliance red) {
-        return new Match(blue, red, eliminations, matchNumber);
-    }
-
-    public Match eleminations(boolean eliminations) {
-        return new Match(blue, red, eliminations, matchNumber);
-    }
-
-    public Match matchNumber(int matchNumber) {
-        return new Match(blue, red, eliminations, matchNumber);
-    }
-
-    public Match regional(String regional) {
-        return new Match(blue, red, eliminations, matchNumber);
-    }
-
-    public Team getTeam(int team) throws NoSuchFieldException {
-        for (Team t : blue.getTeams()) {
-            if (t.getTeamNumber() == team) {
-                return t;
-            }
-        }
-        for (Team t : red.getTeams()) {
-            if (t.getTeamNumber() == team) {
-                return t;
-            }
-        }
-        throw new NoSuchFieldException("Team " + team + " does not exist in " + this);
-    }
-
-    public Alliance getBlueAlliance() {
-        return blue;
-    }
-
-    public Alliance getRedAlliance() {
+    public Alliance getRed() {
         return red;
     }
 
-    public boolean isEliminations() {
-        return eliminations;
+    public Alliance getBlue() {
+        return blue;
     }
 
-    public int getMatchNumber() {
-        return matchNumber;
+    public int getMatchNum() {
+        return matchNum;
+    }
+
+    public MatchType getMatchType() {
+        return matchType;
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return new Match(blue, red, eliminations, matchNumber);
+    public int compareTo(Match o) {
+        int x;
+        x = matchType.compareTo(o.matchType);
+        if (x == 0) {
+            x = Integer.compare(matchNum, o.matchNum);
+        }
+        return x;
     }
 
     @Override
     public boolean equals(Object obj) {
-        return (obj instanceof Match)
-                ? (((Match) obj).eliminations == this.eliminations
-                && ((Match) obj).matchNumber == this.matchNumber)
-                : false;
+        if (obj instanceof Match) {
+            return matchType == ((Match) obj).matchType
+                    && matchNum == ((Match) obj).matchNum
+                    && blue.equals(((Match) obj).blue)
+                    && red.equals(((Match) obj).red);
+        } else {
+            return false;
+        }
     }
 
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 17 * hash + (this.eliminations ? 1 : 0);
-        hash = 17 * hash + this.matchNumber;
+        int hash = 5;
+        hash = 53 * hash + Objects.hashCode(this.red);
+        hash = 53 * hash + Objects.hashCode(this.blue);
+        hash = 53 * hash + this.matchNum;
+        hash = 53 * hash + (this.matchType != null ? this.matchType.hashCode() : 0);
         return hash;
     }
 
     @Override
     public String toString() {
-        return "Match " + matchNumber
-                + (eliminations ? " of eliminations" : " of qualifications");
+        return matchType.shortVersion() + " " + matchNum;
     }
 
-    @Override
-    public int compareTo(Match o) {
-        if(o.isEliminations() && isEliminations()) {
-            return Integer.compare(matchNumber, o.matchNumber);
-        } else if(o.isEliminations() && !isEliminations()) {
-            return -100;
-        } else if (!o.isEliminations() && isEliminations()) {
-            return 100;
-        } else {
-            return Integer.compare(matchNumber, o.matchNumber);
-        }
+    public static enum MatchType {
+
+        Practice {
+            @Override
+            public String shortVersion() {
+                return "PRCT";
+            }
+        }, Qualifications {
+            @Override
+            public String shortVersion() {
+                return "QUAL";
+            }
+        }, Eliminations {
+            @Override
+            public String shortVersion() {
+                return "ELIM";
+            }
+        };
+
+        public abstract String shortVersion();
     }
 }

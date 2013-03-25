@@ -56,9 +56,15 @@ public class Points implements Serializable {
     public static class ClimbPoints extends Points {
 
         private static final long serialVersionUID = Scouter.serialVersionUID;
+        private final double climbTime;
 
-        protected ClimbPoints(int points) {
+        protected ClimbPoints(int points, double climbTime) {
             super(points);
+            this.climbTime = climbTime;
+        }
+
+        public double getClimbTime() {
+            return climbTime;
         }
 
         @Override

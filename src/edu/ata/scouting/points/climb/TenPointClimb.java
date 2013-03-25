@@ -7,7 +7,7 @@ public class TenPointClimb extends Points.ClimbPoints {
 
     private static final long serialVersionUID = Scouter.serialVersionUID;
 
-    public TenPointClimb() {
-        super(10);
+    public TenPointClimb(double climbTime) {
+        super(10, climbTime);
     }
 }
