@@ -37,7 +37,7 @@ public final class MainWindow extends JFrame {
     private final HashMap<Match, ArrayList<TeamMatch>> matches = new HashMap<>();
     private final JPanel panel = new JPanel(new GridLayout(0, 8));
     private final JScrollPane pane = new JScrollPane(panel);
-    private String matchListName = "";
+    private String matchListName = "Unknown";
 
     public MainWindow() {
         super("4334");
@@ -57,14 +57,14 @@ public final class MainWindow extends JFrame {
         save.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String name = JOptionPane.showInputDialog("What is this match list called?", matchListName);
-                if (name == null || name.equals("")) {
+                matchListName = JOptionPane.showInputDialog("What is this match list called?", matchListName);
+                if (matchListName == null || matchListName.equals("")) {
                     Scouter.showErr(new NullPointerException("Invalid option"));
                     return;
                 }
 
                 try {
-                    File matchList = new File(Scouter.scoutingDir + name);
+                    File matchList = new File(Scouter.scoutingDir + matchListName);
                     matchList.getParentFile().mkdirs();
                     matchList.createNewFile();
                     try (FileOutputStream matchListStream = new FileOutputStream(matchList)) {
@@ -77,7 +77,7 @@ public final class MainWindow extends JFrame {
 
                     for (ArrayList<TeamMatch> list : matches.values()) {
                         for (TeamMatch tm : list) {
-                            File f = new File(Scouter.scoutingDir + name + " Matches" + System.getProperty("file.separator") + tm);
+                            File f = new File(Scouter.scoutingDir + matchListName + " Matches" + System.getProperty("file.separator") + tm);
                             f.getParentFile().mkdirs();
                             f.createNewFile();
                             try (FileOutputStream st = new FileOutputStream(f)) {
@@ -100,7 +100,7 @@ public final class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 ArrayList<TeamMatch> all = new ArrayList<>();
-                for(ArrayList<TeamMatch> m : matches.values()) {
+                for (ArrayList<TeamMatch> m : matches.values()) {
                     all.addAll(m);
                 }
                 new Decompiler(all, matchListName).decompileAll();
@@ -249,7 +249,7 @@ public final class MainWindow extends JFrame {
         File dir = new File(Scouter.scoutingDir);
         if (dir.exists() && dir.listFiles() != null) {
             for (File f : dir.listFiles()) {
-                if (f.isFile()) {
+                if (f.isFile() && !f.getPath().contains(".csv")) {
                     try (ObjectInputStream stream = new ObjectInputStream(new FileInputStream(f))) {
                         Object o = stream.readObject();
 

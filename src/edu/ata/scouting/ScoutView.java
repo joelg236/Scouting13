@@ -44,7 +44,7 @@ public final class ScoutView extends JDialog {
     private JTextArea teamNotes;
     private JCheckBox ground;
     private JCheckBox feeder;
-    private boolean climbStopped = false;
+    private double climbTime = 0;
 
     public ScoutView(Team team, MatchData match) {
         super(Scouter.getMain(), match.toString());
@@ -295,6 +295,7 @@ public final class ScoutView extends JDialog {
         private final JLabel climbTimer = new JLabel(String.format("%.2f",
                 match.getClimb() != null ? match.getClimb().getClimbTime() : 0));
         private double startTime = System.currentTimeMillis();
+        private boolean climbStopped = false;
 
         public ClimbDisplay() {
             super(LayoutFactory.createLayout());
@@ -305,16 +306,18 @@ public final class ScoutView extends JDialog {
             JButton twenty = new ClimbPoint(20);
             JButton thirty = new ClimbPoint(30);
             JButton startClimb = new StartClimb();
+            JButton stopClimb = new StopClimb();
             climbTimer.setFont(buttonFont);
             climbTimer.setHorizontalAlignment(SwingConstants.CENTER);
 
             LayoutFactory factory = LayoutFactory.newFactory();
             add(title, factory);
             add(startClimb, factory.setX(1));
-            add(climbTimer, factory.setX(2));
+            add(stopClimb, factory.setX(2));
+            add(climbTimer, factory.setX(3));
             add(ten, factory.setY(1).setX(0));
             add(twenty, factory.setX(1));
-            add(thirty, factory.setX(2));
+            add(thirty, factory.setX(2).setWidth(2));
         }
 
         private final class StartClimb extends JButton {
@@ -337,13 +340,30 @@ public final class ScoutView extends JDialog {
                         @Override
                         public void run() {
                             climbTimer.setText(String.format("%.2f", (double) (System.currentTimeMillis() / 1000.0) - (long) startTime));
-                            if (climbStopped) {
+                            if (climbStopped || !isVisible()) {
                                 t.cancel();
-                                climbTimer.setText(String.format("%.2f",
-                                        match.getClimb() != null ? match.getClimb().getClimbTime() : 0));
                             }
                         }
                     }, 0, 20);
+                }
+            }
+        }
+
+        private final class StopClimb extends JButton {
+
+            public StopClimb() {
+                super("Stop");
+                setBackground(Color.ORANGE);
+                setFont(buttonFont);
+                addActionListener(new Stop());
+            }
+
+            private final class Stop implements ActionListener {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    climbStopped = true;
+                    climbTime = (System.currentTimeMillis() / 1000.0) - (long) startTime;
                 }
             }
         }
@@ -365,8 +385,6 @@ public final class ScoutView extends JDialog {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     Points p;
-                    climbStopped = true;
-                    double climbTime = (double) (System.currentTimeMillis() / 1000.0) - (long) startTime;
                     switch (points) {
                         case (10):
                             p = new TenPointClimb(climbTime);
@@ -440,6 +458,7 @@ public final class ScoutView extends JDialog {
     private final class RobotNotes extends JPanel {
 
         private JComboBox<TeamMatch.RobotType> robotType = new RobotType();
+        private JComboBox<TeamMatch.ShooterType> shooterType = new ShooterType();
 
         public RobotNotes() {
             super(LayoutFactory.createLayout());
@@ -453,6 +472,7 @@ public final class ScoutView extends JDialog {
             teamNotesLabel.setFont(matchNotesLabel.getFont());
             teamNotesLabel.setHorizontalAlignment(SwingConstants.CENTER);
             robotType.setSelectedItem(match.getRobotType());
+            shooterType.setSelectedItem(match.getShooterType());
             ground.setHorizontalAlignment(SwingConstants.RIGHT);
             matchNotes.setBorder(new BevelBorder(BevelBorder.LOWERED));
             teamNotes.setBorder(new BevelBorder(BevelBorder.LOWERED));
@@ -462,9 +482,10 @@ public final class ScoutView extends JDialog {
             add(ground, factory.setY(1).setWidth(1));
             add(feeder, factory.setX(1));
             add(robotType, factory.setY(2).setX(0).setWidth(2));
-            add(matchNotesLabel, factory.setY(3).setX(0).setWidth(1));
+            add(shooterType, factory.setY(3));
+            add(matchNotesLabel, factory.setY(4).setX(0).setWidth(1));
             add(teamNotesLabel, factory.setX(1));
-            add(matchNotes, factory.setY(4).setX(0));
+            add(matchNotes, factory.setY(5).setX(0));
             add(teamNotes, factory.setX(1));
         }
 
@@ -480,6 +501,22 @@ public final class ScoutView extends JDialog {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     match.setRobotType((TeamMatch.RobotType) getSelectedItem());
+                }
+            }
+        }
+
+        private class ShooterType extends JComboBox<TeamMatch.ShooterType> {
+
+            public ShooterType() {
+                super(TeamMatch.ShooterType.values());
+                addActionListener(new SetShooterType());
+            }
+
+            private class SetShooterType implements ActionListener {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    match.setShooterType((TeamMatch.ShooterType) getSelectedItem());
                 }
             }
         }
@@ -555,7 +592,6 @@ public final class ScoutView extends JDialog {
                     match.setNote(TeamMatch.NoteType.MatchNote, matchNotes.getText());
                     match.setNote(TeamMatch.NoteType.TeamNote, teamNotes.getText());
                     Scouter.getMain().putMatch(team, match);
-                    climbStopped = true;
                     dispose();
                 }
             }
@@ -572,7 +608,6 @@ public final class ScoutView extends JDialog {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    climbStopped = true;
                     dispose();
                 }
             }

@@ -27,12 +27,12 @@ public final class Decompiler {
     private final ArrayList<TeamMatch> matches;
     private final ArrayList<Team> teams;
     private final File listRecapFile;
-    private final String matchesName;
+    private final File allMatches;
 
     public Decompiler(ArrayList<TeamMatch> matches, String matchesName) {
         this.matches = matches;
-        this.matchesName = matchesName;
         this.listRecapFile = new File(Scouter.scoutingDir + matchesName + " Recap.csv");
+        this.allMatches = new File(Scouter.scoutingDir + "Teams in " + matchesName + ".csv");
         Collections.sort(matches);
         teams = new ArrayList<>();
         for (TeamMatch match : matches) {
@@ -272,7 +272,7 @@ public final class Decompiler {
                 }
             }
         }
-        return time / ((double) climbs);
+        return climbs == 0 ? 0 : time / ((double) climbs);
     }
 
     public static int foul(TeamMatch match) {
@@ -442,16 +442,13 @@ public final class Decompiler {
             Scouter.showErr(ex);
         }
 
-        for (Team team : teams) {
-            File f = new File(Scouter.scoutingDir + team + " in " + matchesName + ".csv");
-            try (FileOutputStream fileOutputStream = new FileOutputStream(f)) {
-                f.getParentFile().mkdirs();
-                f.createNewFile();
-                fileOutputStream.write(teamBio(team).getBytes());
-                System.out.println("Wrote to " + f.getPath());
-            } catch (IOException ex) {
-                Scouter.showErr(ex);
-            }
+        try (FileOutputStream fileOutputStream = new FileOutputStream(allMatches)) {
+            allMatches.getParentFile().mkdirs();
+            allMatches.createNewFile();
+            fileOutputStream.write(teams(teams).getBytes());
+            System.out.println("Wrote to " + allMatches.getPath());
+        } catch (IOException ex) {
+            Scouter.showErr(ex);
         }
     }
 
@@ -483,32 +480,43 @@ public final class Decompiler {
         return builder.toString();
     }
 
-    public String teamBio(Team team) {
-        StringBuilder builder = new StringBuilder("Record,Avg Points,Robot Type,"
+    public String teams(ArrayList<Team> teams) {
+        StringBuilder builder = new StringBuilder("Team,Record,Avg Points,Robot Type,"
                 + "Team Notes,Most Common Auto Discs,Feeders,Starting Positions,"
                 + "Avg Auto Points,Avg Shooting Points,Most Common Shot,Shooter Type,Climbs,"
                 + "Avg Climb Points,Avg Climb Time,Most Common Climb,Foul Points" + System.lineSeparator());
-        builder.append(wins(matches)).append("-").append(losses(matches)).append(COMMA);
-        builder.append(((double) totalTotal(matches)) / ((double) matches.size())).append(COMMA);
-        builder.append(getRobotType(matches)).append(COMMA);
-        for (TeamMatch t : getMatches(team, matches)) {
+        for (Team t : teams) {
+            builder.append(teamBio(t));
+        }
+
+        return builder.toString();
+    }
+
+    public String teamBio(Team team) {
+        StringBuilder builder = new StringBuilder();
+        ArrayList<TeamMatch> teamsMatches = getMatches(team, matches);
+        builder.append(team).append(COMMA);
+        builder.append(wins(teamsMatches)).append("-").append(losses(teamsMatches)).append(COMMA);
+        builder.append(((double) totalTotal(teamsMatches)) / ((double) teamsMatches.size())).append(COMMA);
+        builder.append(getRobotType(teamsMatches)).append(COMMA);
+        for (TeamMatch t : teamsMatches) {
             if (t.getTeamNotes() != null && !t.getTeamNotes().equals("")) {
                 builder.append(t.getTeamNotes()).append(" | ");
             }
         }
         builder.append(COMMA);
-        builder.append(totalCommonAuto(matches)).append(COMMA);
-        builder.append(getFeeders(matches)).append(COMMA);
-        builder.append(getStartingPositions(matches)).append(COMMA);
-        builder.append(((double) totalAuto(matches)) / ((double) matches.size())).append(COMMA);
-        builder.append(((double) totalTele(matches)) / ((double) matches.size())).append(COMMA);
-        builder.append(totalCommonTele(matches)).append(COMMA);
-        builder.append(getShooterType(matches)).append(COMMA);
-        builder.append(climbs(matches)).append(COMMA);
-        builder.append(((double) totalClimb(matches)) / ((double) matches.size())).append(COMMA);
-        builder.append(avgClimbTime(matches)).append(COMMA);
-        builder.append(commonClimb(matches)).append(COMMA);
-        builder.append(totalFoul(matches)).append(COMMA);
+        builder.append(totalCommonAuto(teamsMatches)).append(COMMA);
+        builder.append(getFeeders(teamsMatches)).append(COMMA);
+        builder.append(getStartingPositions(teamsMatches)).append(COMMA);
+        builder.append(((double) totalAuto(teamsMatches)) / ((double) teamsMatches.size())).append(COMMA);
+        builder.append(((double) totalTele(teamsMatches)) / ((double) teamsMatches.size())).append(COMMA);
+        builder.append(totalCommonTele(teamsMatches)).append(COMMA);
+        builder.append(getShooterType(teamsMatches)).append(COMMA);
+        builder.append(climbs(teamsMatches)).append(COMMA);
+        builder.append(((double) totalClimb(teamsMatches)) / ((double) teamsMatches.size())).append(COMMA);
+        builder.append(avgClimbTime(teamsMatches)).append(COMMA);
+        builder.append(commonClimb(teamsMatches)).append(COMMA);
+        builder.append(totalFoul(teamsMatches)).append(COMMA);
         builder.append(System.lineSeparator());
 
         return builder.toString();
