@@ -431,6 +431,14 @@ public final class Decompiler {
         }
         return losses;
     }
+    
+    public static int drivetrainRating(ArrayList<TeamMatch> matches) {
+        int sum = 0;
+        for(TeamMatch t : matches) {
+            sum += t.getDrivetrainRating();
+        }
+        return Math.round((float) (((double) sum) / ((double) matches.size())));
+    }
 
     public void decompileAll() {
         try (FileOutputStream fileOutputStream = new FileOutputStream(listRecapFile)) {
@@ -456,7 +464,8 @@ public final class Decompiler {
         StringBuilder builder = new StringBuilder("Match,Team,Match Result,Total Points,"
                 + "Auto Points,Auto Discs,Most Common Auto Shot,Teleop Points,"
                 + "Most Common Teleop Shot,Climb Points,Foul Points,Ground Intake,"
-                + "Feeder Station,Robot Type,Shooter Type,Starting Position" + System.lineSeparator());
+                + "Feeder Station,Drivetrain Rating,Robot Type,Shooter Type,Starting Position" 
+                + System.lineSeparator());
         for (TeamMatch tm : matches) {
             builder.append(tm.getMatch()).append(COMMA);
             builder.append(tm.getTeam()).append(COMMA);
@@ -471,6 +480,7 @@ public final class Decompiler {
             builder.append(foul(tm)).append(COMMA);
             builder.append(Arrays.asList(tm.getIntakes()).contains(TeamMatch.Intake.GroundPickup)).append(COMMA);
             builder.append(Arrays.asList(tm.getIntakes()).contains(TeamMatch.Intake.FeederStation)).append(COMMA);
+            builder.append(tm.getDrivetrainRating()).append(COMMA);
             builder.append(tm.getRobotType()).append(COMMA);
             builder.append(tm.getShooterType()).append(COMMA);
             builder.append(tm.getStartingPosition()).append(COMMA);
@@ -482,7 +492,7 @@ public final class Decompiler {
 
     public String teams(ArrayList<Team> teams) {
         StringBuilder builder = new StringBuilder("Team,Record,Avg Points,Robot Type,"
-                + "Team Notes,Most Common Auto Discs,Feeders,Starting Positions,"
+                + "Team Notes,Drivetrain Rating,Most Common Auto Discs,Feeders,Starting Positions,"
                 + "Avg Auto Points,Avg Shooting Points,Most Common Shot,Shooter Type,Climbs,"
                 + "Avg Climb Points,Avg Climb Time,Most Common Climb,Foul Points" + System.lineSeparator());
         for (Team t : teams) {
@@ -505,6 +515,7 @@ public final class Decompiler {
             }
         }
         builder.append(COMMA);
+        builder.append(drivetrainRating(teamsMatches)).append(COMMA);
         builder.append(totalCommonAuto(teamsMatches)).append(COMMA);
         builder.append(getFeeders(teamsMatches)).append(COMMA);
         builder.append(getStartingPositions(teamsMatches)).append(COMMA);

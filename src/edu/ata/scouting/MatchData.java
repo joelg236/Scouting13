@@ -3,7 +3,6 @@ package edu.ata.scouting;
 import edu.ata.scouting.points.Points;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +17,7 @@ public final class MatchData {
     private TeamMatch.ShooterType shooterType;
     private TeamMatch.MatchResult matchResult;
     private TeamMatch.AutoDiscCount autoDiscCount;
+    private int drivetrainRating;
     private Map<TeamMatch.NoteType, String> notes;
 
     public MatchData(Match match) {
@@ -29,6 +29,7 @@ public final class MatchData {
         shooterType = TeamMatch.ShooterType.NoShooter;
         matchResult = TeamMatch.MatchResult.Unknown;
         autoDiscCount = TeamMatch.AutoDiscCount.NoDisc;
+        drivetrainRating = 1;
         notes = new HashMap<>();
     }
 
@@ -41,6 +42,7 @@ public final class MatchData {
         shooterType = matchData.shooterType;
         matchResult = matchData.matchResult;
         autoDiscCount = matchData.autoDiscCount;
+        drivetrainRating = matchData.drivetrainRating;
         notes = matchData.notes;
     }
 
@@ -55,6 +57,7 @@ public final class MatchData {
         shooterType = match.getShooterType();
         matchResult = match.getMatchResult();
         autoDiscCount = match.getAutoDiscCount();
+        drivetrainRating = match.getDrivetrainRating();
         notes = new HashMap<>();
         notes.put(TeamMatch.NoteType.MatchNote, match.getMatchNotes());
         notes.put(TeamMatch.NoteType.TeamNote, match.getTeamNotes());
@@ -98,6 +101,10 @@ public final class MatchData {
 
     public void setAutoDiscCount(TeamMatch.AutoDiscCount autoDiscCount) {
         this.autoDiscCount = autoDiscCount;
+    }
+
+    public void setDrivetrainRating(int drivetrainRating) {
+        this.drivetrainRating = drivetrainRating;
     }
 
     public void setNote(TeamMatch.NoteType noteType, String note) {
@@ -181,6 +188,10 @@ public final class MatchData {
 
     public TeamMatch.AutoDiscCount getAutoDiscCount() {
         return autoDiscCount;
+    }
+
+    public int getDrivetrainRating() {
+        return drivetrainRating;
     }
 
     public Map<TeamMatch.NoteType, String> getNotes() {

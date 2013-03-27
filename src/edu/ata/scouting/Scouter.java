@@ -5,7 +5,7 @@ import javax.swing.SwingUtilities;
 
 public class Scouter {
 
-    public static final long serialVersionUID = 29123L;
+    public static final long serialVersionUID = 29823L;
     public static final String scoutingDir = System.getProperty("user.home")
             + System.getProperty("file.separator") + "scouting" + System.getProperty("file.separator");
     private static MainWindow main;

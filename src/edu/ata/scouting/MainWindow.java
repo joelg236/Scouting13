@@ -52,6 +52,7 @@ public final class MainWindow extends JFrame {
 
         JMenu file = new JMenu("File");
         JMenu edit = new JMenu("Edit");
+        JMenu about = new JMenu("About");
 
         JMenuItem save = new JMenuItem("Save");
         save.addActionListener(new ActionListener() {
@@ -115,12 +116,22 @@ public final class MainWindow extends JFrame {
             }
         });
 
+        JMenuItem version = new JMenuItem("Version");
+        version.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(Scouter.getMain(), "Version " + Scouter.serialVersionUID);
+            }
+        });
+
         file.add(save);
         file.add(decompile);
         edit.add(newMatch);
+        about.add(version);
 
         bar.add(file);
         bar.add(edit);
+        bar.add(about);
 
         setJMenuBar(bar);
 
@@ -267,7 +278,8 @@ public final class MainWindow extends JFrame {
                             }
                         }
                     } catch (IOException | ClassNotFoundException ex) {
-                        Scouter.showErr(ex);
+                        Scouter.showErr(new IOException("Problem loading "
+                                + f.getPath() + ", make sure it was created with the same program version", ex));
                     }
                 }
             }

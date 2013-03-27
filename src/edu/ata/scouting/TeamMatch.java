@@ -16,6 +16,7 @@ public final class TeamMatch implements Serializable, Comparable<TeamMatch> {
     private final ShooterType shooterType;
     private final MatchResult matchResult;
     private final AutoDiscCount autoDiscCount;
+    private final int drivetrainRating;
     private final String matchNote;
     private final String teamNote;
 
@@ -29,22 +30,24 @@ public final class TeamMatch implements Serializable, Comparable<TeamMatch> {
                 matchData.getShooterType(),
                 matchData.getMatchResult(),
                 matchData.getAutoDiscCount(),
+                matchData.getDrivetrainRating(),
                 matchData.getNotes().get(NoteType.MatchNote),
                 matchData.getNotes().get(NoteType.TeamNote));
     }
 
     public TeamMatch(Team team, Match match, Points[] points, RobotType robotType,
             StartingPosition startingPosition, Intake[] intakes, ShooterType shooterType,
-            MatchResult matchResult, AutoDiscCount autoDiscCount, String matchNote, String teamNote) {
+            MatchResult matchResult, AutoDiscCount autoDiscCount, int drivetrainRating,
+            String matchNote, String teamNote) {
         if (team == null || match == null || points == null || robotType == null
                 || startingPosition == null || intakes == null || shooterType == null
                 || matchResult == null || autoDiscCount == null) {
             throw new NullPointerException();
         }
-        if(matchNote == null) {
+        if (matchNote == null) {
             matchNote = "";
         }
-        if(teamNote == null) {
+        if (teamNote == null) {
             teamNote = "";
         }
         this.team = team;
@@ -56,6 +59,7 @@ public final class TeamMatch implements Serializable, Comparable<TeamMatch> {
         this.shooterType = shooterType;
         this.matchResult = matchResult;
         this.autoDiscCount = autoDiscCount;
+        this.drivetrainRating = drivetrainRating;
         this.matchNote = matchNote;
         this.teamNote = teamNote;
     }
@@ -102,6 +106,10 @@ public final class TeamMatch implements Serializable, Comparable<TeamMatch> {
 
     public AutoDiscCount getAutoDiscCount() {
         return autoDiscCount;
+    }
+
+    public int getDrivetrainRating() {
+        return drivetrainRating;
     }
 
     public String getMatchNotes() {

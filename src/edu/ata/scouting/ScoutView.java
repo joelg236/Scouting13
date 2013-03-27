@@ -30,9 +30,12 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
+import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public final class ScoutView extends JDialog {
 
@@ -459,15 +462,19 @@ public final class ScoutView extends JDialog {
 
         private JComboBox<TeamMatch.RobotType> robotType = new RobotType();
         private JComboBox<TeamMatch.ShooterType> shooterType = new ShooterType();
+        private JSlider drivetrainRating = new DrivetrainRating();
 
         public RobotNotes() {
             super(LayoutFactory.createLayout());
             JLabel robotTypeLabel = new JLabel("Robot Type");
             robotTypeLabel.setFont(robotTypeLabel.getFont().deriveFont(Font.BOLD, 22));
             robotTypeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            JLabel drivetrainRatingLabel = new JLabel("Drivetrain rating");
+            drivetrainRatingLabel.setFont(robotTypeLabel.getFont());
+            drivetrainRatingLabel.setHorizontalAlignment(SwingConstants.CENTER);
             JLabel matchNotesLabel = new JLabel("Match Notes");
             JLabel teamNotesLabel = new JLabel("Team Notes");
-            matchNotesLabel.setFont(robotTypeLabel.getFont());
+            matchNotesLabel.setFont(drivetrainRatingLabel.getFont());
             matchNotesLabel.setHorizontalAlignment(SwingConstants.CENTER);
             teamNotesLabel.setFont(matchNotesLabel.getFont());
             teamNotesLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -481,11 +488,13 @@ public final class ScoutView extends JDialog {
             add(robotTypeLabel, factory.setWidth(2));
             add(ground, factory.setY(1).setWidth(1));
             add(feeder, factory.setX(1));
-            add(robotType, factory.setY(2).setX(0).setWidth(2));
-            add(shooterType, factory.setY(3));
-            add(matchNotesLabel, factory.setY(4).setX(0).setWidth(1));
+            add(drivetrainRatingLabel, factory.setY(2).setX(0).setWidth(2));
+            add(drivetrainRating, factory.setY(3));
+            add(robotType, factory.setY(4));
+            add(shooterType, factory.setY(5));
+            add(matchNotesLabel, factory.setY(6).setX(0).setWidth(1));
             add(teamNotesLabel, factory.setX(1));
-            add(matchNotes, factory.setY(5).setX(0));
+            add(matchNotes, factory.setY(7).setX(0));
             add(teamNotes, factory.setX(1));
         }
 
@@ -517,6 +526,22 @@ public final class ScoutView extends JDialog {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     match.setShooterType((TeamMatch.ShooterType) getSelectedItem());
+                }
+            }
+        }
+
+        private class DrivetrainRating extends JSlider {
+
+            public DrivetrainRating() {
+                super(1, 5, match.getDrivetrainRating());
+                addChangeListener(new SetDrivetrainRating());
+            }
+
+            private class SetDrivetrainRating implements ChangeListener {
+
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    match.setDrivetrainRating(getValue());
                 }
             }
         }
