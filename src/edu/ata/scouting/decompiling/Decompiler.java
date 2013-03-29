@@ -23,7 +23,7 @@ import java.util.Collections;
 
 public final class Decompiler {
 
-    private static final char COMMA = ',';
+    private static final char COMMA = ',', QUOTE = '\"';
     private final ArrayList<TeamMatch> matches;
     private final ArrayList<Team> teams;
     private final File listRecapFile;
@@ -65,8 +65,10 @@ public final class Decompiler {
             return "Offense";
         } else if (!off && def) {
             return "Defense";
-        } else {
+        } else if(off && def) {
             return "Both";
+        } else {
+            return "None";
         }
     }
 
@@ -83,8 +85,10 @@ public final class Decompiler {
             return "Ground";
         } else if (!ground && feeder) {
             return "Feeder Station";
-        } else {
+        } else if (ground && feeder) {
             return "Both";
+        } else {
+            return "None";
         }
     }
 
@@ -467,23 +471,23 @@ public final class Decompiler {
                 + "Feeder Station,Drivetrain Rating,Robot Type,Shooter Type,Starting Position" 
                 + System.lineSeparator());
         for (TeamMatch tm : matches) {
-            builder.append(tm.getMatch()).append(COMMA);
-            builder.append(tm.getTeam()).append(COMMA);
-            builder.append(tm.getMatchResult()).append(COMMA);
-            builder.append(total(tm)).append(COMMA);
-            builder.append(auto(tm)).append(COMMA);
-            builder.append(tm.getAutoDiscCount()).append(COMMA);
-            builder.append(commonAuto(tm)).append(COMMA);
-            builder.append(tele(tm)).append(COMMA);
-            builder.append(commonTele(tm)).append(COMMA);
-            builder.append(climb(tm)).append(COMMA);
-            builder.append(foul(tm)).append(COMMA);
-            builder.append(Arrays.asList(tm.getIntakes()).contains(TeamMatch.Intake.GroundPickup)).append(COMMA);
-            builder.append(Arrays.asList(tm.getIntakes()).contains(TeamMatch.Intake.FeederStation)).append(COMMA);
-            builder.append(tm.getDrivetrainRating()).append(COMMA);
-            builder.append(tm.getRobotType()).append(COMMA);
-            builder.append(tm.getShooterType()).append(COMMA);
-            builder.append(tm.getStartingPosition()).append(COMMA);
+            builder.append(QUOTE).append(tm.getMatch()).append(QUOTE).append(COMMA);
+            builder.append(QUOTE).append(tm.getTeam()).append(QUOTE).append(COMMA);
+            builder.append(QUOTE).append(tm.getMatchResult()).append(QUOTE).append(COMMA);
+            builder.append(QUOTE).append(total(tm)).append(QUOTE).append(COMMA);
+            builder.append(QUOTE).append(auto(tm)).append(QUOTE).append(COMMA);
+            builder.append(QUOTE).append(tm.getAutoDiscCount()).append(QUOTE).append(COMMA);
+            builder.append(QUOTE).append(commonAuto(tm)).append(QUOTE).append(COMMA);
+            builder.append(QUOTE).append(tele(tm)).append(QUOTE).append(COMMA);
+            builder.append(QUOTE).append(commonTele(tm)).append(QUOTE).append(COMMA);
+            builder.append(QUOTE).append(climb(tm)).append(QUOTE).append(COMMA);
+            builder.append(QUOTE).append(foul(tm)).append(QUOTE).append(COMMA);
+            builder.append(QUOTE).append(Arrays.asList(tm.getIntakes()).contains(TeamMatch.Intake.GroundPickup)).append(QUOTE).append(COMMA);
+            builder.append(QUOTE).append(Arrays.asList(tm.getIntakes()).contains(TeamMatch.Intake.FeederStation)).append(QUOTE).append(COMMA);
+            builder.append(QUOTE).append(tm.getDrivetrainRating()).append(QUOTE).append(COMMA);
+            builder.append(QUOTE).append(tm.getRobotType()).append(QUOTE).append(COMMA);
+            builder.append(QUOTE).append(tm.getShooterType()).append(QUOTE).append(COMMA);
+            builder.append(QUOTE).append(tm.getStartingPosition()).append(QUOTE).append(COMMA);
             builder.append(System.lineSeparator());
         }
 
@@ -505,30 +509,31 @@ public final class Decompiler {
     public String teamBio(Team team) {
         StringBuilder builder = new StringBuilder();
         ArrayList<TeamMatch> teamsMatches = getMatches(team, matches);
-        builder.append(team).append(COMMA);
-        builder.append(wins(teamsMatches)).append("-").append(losses(teamsMatches)).append(COMMA);
-        builder.append(((double) totalTotal(teamsMatches)) / ((double) teamsMatches.size())).append(COMMA);
-        builder.append(getRobotType(teamsMatches)).append(COMMA);
+        builder.append(QUOTE).append(team).append(QUOTE).append(COMMA);
+        builder.append(QUOTE).append(wins(teamsMatches)).append("-").append(losses(teamsMatches)).append(QUOTE).append(COMMA);
+        builder.append(QUOTE).append(((double) totalTotal(teamsMatches)) / ((double) teamsMatches.size())).append(QUOTE).append(COMMA);
+        builder.append(QUOTE).append(getRobotType(teamsMatches)).append(QUOTE).append(COMMA);
+        builder.append(QUOTE);
         for (TeamMatch t : teamsMatches) {
             if (t.getTeamNotes() != null && !t.getTeamNotes().equals("")) {
                 builder.append(t.getTeamNotes()).append(" | ");
             }
         }
-        builder.append(COMMA);
-        builder.append(drivetrainRating(teamsMatches)).append(COMMA);
-        builder.append(totalCommonAuto(teamsMatches)).append(COMMA);
-        builder.append(getFeeders(teamsMatches)).append(COMMA);
-        builder.append(getStartingPositions(teamsMatches)).append(COMMA);
-        builder.append(((double) totalAuto(teamsMatches)) / ((double) teamsMatches.size())).append(COMMA);
-        builder.append(((double) totalTele(teamsMatches)) / ((double) teamsMatches.size())).append(COMMA);
-        builder.append(totalCommonTele(teamsMatches)).append(COMMA);
-        builder.append(getShooterType(teamsMatches)).append(COMMA);
-        builder.append(climbs(teamsMatches)).append(COMMA);
-        builder.append(((double) totalClimb(teamsMatches)) / ((double) teamsMatches.size())).append(COMMA);
-        builder.append(avgClimbTime(teamsMatches)).append(COMMA);
-        builder.append(commonClimb(teamsMatches)).append(COMMA);
-        builder.append(totalFoul(teamsMatches)).append(COMMA);
-        builder.append(System.lineSeparator());
+        builder.append(QUOTE).append(COMMA);
+        builder.append(QUOTE).append(drivetrainRating(teamsMatches)).append(QUOTE).append(COMMA);
+        builder.append(QUOTE).append(totalCommonAuto(teamsMatches)).append(QUOTE).append(COMMA);
+        builder.append(QUOTE).append(getFeeders(teamsMatches)).append(QUOTE).append(COMMA);
+        builder.append(QUOTE).append(getStartingPositions(teamsMatches)).append(QUOTE).append(COMMA);
+        builder.append(QUOTE).append(((double) totalAuto(teamsMatches)) / ((double) teamsMatches.size())).append(QUOTE).append(COMMA);
+        builder.append(QUOTE).append(((double) totalTele(teamsMatches)) / ((double) teamsMatches.size())).append(QUOTE).append(COMMA);
+        builder.append(QUOTE).append(totalCommonTele(teamsMatches)).append(QUOTE).append(COMMA);
+        builder.append(QUOTE).append(getShooterType(teamsMatches)).append(QUOTE).append(COMMA);
+        builder.append(QUOTE).append(climbs(teamsMatches)).append(QUOTE).append(COMMA);
+        builder.append(QUOTE).append(((double) totalClimb(teamsMatches)) / ((double) teamsMatches.size())).append(QUOTE).append(COMMA);
+        builder.append(QUOTE).append(avgClimbTime(teamsMatches)).append(QUOTE).append(COMMA);
+        builder.append(QUOTE).append(commonClimb(teamsMatches)).append(QUOTE).append(COMMA);
+        builder.append(QUOTE).append(totalFoul(teamsMatches)).append(QUOTE).append(COMMA);
+        builder.append(QUOTE).append(System.lineSeparator());
 
         return builder.toString();
     }
