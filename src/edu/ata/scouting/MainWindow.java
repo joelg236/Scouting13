@@ -18,6 +18,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -43,7 +44,7 @@ public final class MainWindow extends JFrame {
         super("4334");
         setRootPane(new JRootPane());
         setRootPaneCheckingEnabled(true);
-        setMinimumSize(new Dimension(500, 0));
+        setMinimumSize(new Dimension(550, 0));
         setMaximizedBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setDefaultLookAndFeelDecorated(false);
@@ -116,6 +117,36 @@ public final class MainWindow extends JFrame {
             }
         });
 
+        JMenuItem removeMatch = new JMenuItem("Remove Match");
+        removeMatch.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String s = JOptionPane.showInputDialog("Enter match name");
+                for (Match m : matches.keySet()) {
+                    if (m.toString().equals(s)) {
+                        matches.remove(m);
+                        updateMatches();
+                        break;
+                    }
+                }
+            }
+        });
+
+        JMenuItem parse = new JMenuItem("Parse from web");
+        parse.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String id = JOptionPane.showInputDialog("Event ID (Qualifications only)");
+                if(id != null) {
+                    List<Match> m = new Parser(id).matches();
+                    for(Match s : m) {
+                        matches.put(s, new ArrayList<TeamMatch>());
+                    }
+                    updateMatches();
+                }
+            }
+        });
+
         JMenuItem version = new JMenuItem("Version");
         version.addActionListener(new ActionListener() {
             @Override
@@ -127,6 +158,8 @@ public final class MainWindow extends JFrame {
         file.add(save);
         file.add(decompile);
         edit.add(newMatch);
+        edit.add(removeMatch);
+        edit.add(parse);
         about.add(version);
 
         bar.add(file);

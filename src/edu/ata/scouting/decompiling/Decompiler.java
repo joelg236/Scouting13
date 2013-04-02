@@ -533,7 +533,7 @@ public final class Decompiler {
         builder.append(QUOTE).append(avgClimbTime(teamsMatches)).append(QUOTE).append(COMMA);
         builder.append(QUOTE).append(commonClimb(teamsMatches)).append(QUOTE).append(COMMA);
         builder.append(QUOTE).append(totalFoul(teamsMatches)).append(QUOTE).append(COMMA);
-        builder.append(QUOTE).append(System.lineSeparator());
+        builder.append(System.lineSeparator());
 
         return builder.toString();
     }
