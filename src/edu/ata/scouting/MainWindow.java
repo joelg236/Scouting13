@@ -101,11 +101,7 @@ public final class MainWindow extends JFrame {
         decompile.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ArrayList<TeamMatch> all = new ArrayList<>();
-                for (ArrayList<TeamMatch> m : matches.values()) {
-                    all.addAll(m);
-                }
-                new Decompiler(all, matchListName).decompileAll();
+                new Decompiler(getAllMatches(), matchListName).decompileAll();
             }
         });
 
@@ -137,9 +133,9 @@ public final class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String id = JOptionPane.showInputDialog("Event ID (Qualifications only)");
-                if(id != null) {
+                if (id != null) {
                     List<Match> m = new Parser(id).matches();
-                    for(Match s : m) {
+                    for (Match s : m) {
                         matches.put(s, new ArrayList<TeamMatch>());
                     }
                     updateMatches();
@@ -264,6 +260,18 @@ public final class MainWindow extends JFrame {
         add(pane);
         pack();
         setLocationRelativeTo(null);
+    }
+
+    public Set<Match> getMatchList() {
+        return matches.keySet();
+    }
+    
+    public ArrayList<TeamMatch> getAllMatches() {
+        ArrayList<TeamMatch> all = new ArrayList<>();
+        for (ArrayList<TeamMatch> m : matches.values()) {
+            all.addAll(m);
+        }
+        return all;
     }
 
     public void createMatch(Match match) {

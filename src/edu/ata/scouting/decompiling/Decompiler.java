@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 public final class Decompiler {
 
@@ -442,6 +443,14 @@ public final class Decompiler {
             sum += t.getDrivetrainRating();
         }
         return Math.round((float) (((double) sum) / ((double) matches.size())));
+    }
+    
+    public List<TeamMatch> getMatches() {
+        return matches;
+    }
+    
+    public List<Team> getTeams() {
+        return teams;
     }
 
     public void decompileAll() {
