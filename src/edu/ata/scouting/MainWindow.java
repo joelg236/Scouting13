@@ -3,8 +3,6 @@ package edu.ata.scouting;
 import edu.ata.scouting.decompiling.Decompiler;
 import edu.ata.scouting.user.NewMatch;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,7 +18,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -38,27 +38,31 @@ public final class MainWindow extends JFrame {
     private final HashMap<Match, ArrayList<TeamMatch>> matches = new HashMap<>();
     private final JPanel panel = new JPanel(new GridLayout(0, 8));
     private final JScrollPane pane = new JScrollPane(panel);
+    private ScoutView scoutView;
     private String matchListName = "Unknown";
 
     public MainWindow() {
         super("4334");
         setRootPane(new JRootPane());
         setRootPaneCheckingEnabled(true);
-        setMinimumSize(new Dimension(550, 0));
-        setMaximizedBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
+        setResizable(false);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setDefaultLookAndFeelDecorated(false);
 
         JMenuBar bar = new JMenuBar();
 
         JMenu file = new JMenu("File");
         JMenu edit = new JMenu("Edit");
+        JMenu stats = new JMenu("Stats");
         JMenu about = new JMenu("About");
 
         JMenuItem save = new JMenuItem("Save");
         save.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if (scoutView != null && scoutView.isVisible()) {
+                    System.err.println("Did not save because match is in progress");
+                    return;
+                }
                 matchListName = JOptionPane.showInputDialog("What is this match list called?", matchListName);
                 if (matchListName == null || matchListName.equals("")) {
                     Scouter.showErr(new NullPointerException("Invalid option"));
@@ -97,8 +101,43 @@ public final class MainWindow extends JFrame {
         });
         save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
 
+        JMenuItem saveTo = new JMenuItem("Save to...");
+        saveTo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final JFileChooser chooser = new JFileChooser();
+                chooser.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (e.getActionCommand().equals(JFileChooser.APPROVE_SELECTION)) {
+                            File f = chooser.getSelectedFile();
+                            for (ArrayList<TeamMatch> list : matches.values()) {
+                                for (TeamMatch tm : list) {
+                                    File d = new File(f.getPath() + System.getProperty("file.separator") + tm);
+                                    try {
+                                        d.createNewFile();
+                                        try (FileOutputStream st = new FileOutputStream(d)) {
+                                            try (ObjectOutputStream stream = new ObjectOutputStream(st)) {
+                                                stream.writeObject(tm);
+                                                System.out.println("Saved to " + d.getPath());
+                                            }
+                                        }
+                                    } catch (IOException ex) {
+                                        Scouter.showErr(ex);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                chooser.showDialog(Scouter.getMain(), "Save");
+            }
+        });
+
         JMenuItem decompile = new JMenuItem("Decompile All");
-        decompile.addActionListener(new ActionListener() {
+        decompile.addActionListener(
+                new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 new Decompiler(getAllMatches(), matchListName).decompileAll();
@@ -106,7 +145,8 @@ public final class MainWindow extends JFrame {
         });
 
         JMenuItem newMatch = new JMenuItem("New Match");
-        newMatch.addActionListener(new ActionListener() {
+        newMatch.addActionListener(
+                new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 new NewMatch(Scouter.getMain()).setVisible(true);
@@ -114,7 +154,8 @@ public final class MainWindow extends JFrame {
         });
 
         JMenuItem removeMatch = new JMenuItem("Remove Match");
-        removeMatch.addActionListener(new ActionListener() {
+        removeMatch.addActionListener(
+                new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String s = JOptionPane.showInputDialog("Enter match name");
@@ -128,8 +169,9 @@ public final class MainWindow extends JFrame {
             }
         });
 
-        JMenuItem parse = new JMenuItem("Parse from web");
-        parse.addActionListener(new ActionListener() {
+        JMenuItem parseQuals = new JMenuItem("Parse from web (Quals)");
+        parseQuals.addActionListener(
+                new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String id = JOptionPane.showInputDialog("Event ID (Qualifications only)");
@@ -142,9 +184,166 @@ public final class MainWindow extends JFrame {
                 }
             }
         });
+        
+        JMenuItem parseElims = new JMenuItem("Parse from web (Elims)");
+        parseElims.addActionListener(
+                new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String id = JOptionPane.showInputDialog("Event ID (Eliminations only)");
+                if (id != null) {
+                    List<Match> m = new Parser(id, true).matches();
+                    for (Match s : m) {
+                        matches.put(s, new ArrayList<TeamMatch>());
+                    }
+                    updateMatches();
+                }
+            }
+        });
+
+        JMenuItem predict = new JMenuItem("Predict Matches");
+        predict.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ArrayList<TeamMatch> l = getAllMatches();
+
+                HashMap<Team, Integer> tally = new HashMap<>();
+                for (Match m : matches.keySet()) {
+                    tally.put(m.getBlue().getTeam1(), 0);
+                    tally.put(m.getBlue().getTeam2(), 0);
+                    tally.put(m.getBlue().getTeam3(), 0);
+                    tally.put(m.getRed().getTeam1(), 0);
+                    tally.put(m.getRed().getTeam2(), 0);
+                    tally.put(m.getRed().getTeam3(), 0);
+                }
+
+                Set<Match> matchList = getMatchList();
+                Match[] matches = new Match[matchList.size()];
+                matchList.toArray(matches);
+                Arrays.sort(matches);
+
+                int start = Integer.parseInt(JOptionPane.showInputDialog("Starting Match"));
+                int x = 0;
+                for (Match match : matches) {
+                    if (++x < start) {
+                        continue;
+                    }
+
+                    boolean blueWon = false, redWon = false;
+
+                    Alliance blue = match.getBlue();
+
+                    ArrayList<TeamMatch> oneBlue = Decompiler.getMatches(blue.getTeam1(), l);
+                    double onepointsBlue = oneBlue.size() > 0
+                            ? ((double) Decompiler.totalTotal(oneBlue)) / ((double) oneBlue.size())
+                            : 0;
+
+                    ArrayList<TeamMatch> twoBlue = Decompiler.getMatches(blue.getTeam2(), l);
+                    double twopointsBlue = twoBlue.size() > 0
+                            ? ((double) Decompiler.totalTotal(twoBlue)) / ((double) twoBlue.size())
+                            : 0;
+
+                    ArrayList<TeamMatch> threeBlue = Decompiler.getMatches(blue.getTeam3(), l);
+                    double threepointsBlue = threeBlue.size() > 0
+                            ? ((double) Decompiler.totalTotal(threeBlue)) / ((double) threeBlue.size())
+                            : 0;
+
+                    double blueAllianceScore = onepointsBlue + twopointsBlue + threepointsBlue;
+
+                    Alliance red = match.getRed();
+
+                    ArrayList<TeamMatch> oneRed = Decompiler.getMatches(red.getTeam1(), l);
+                    double onepointsRed = oneRed.size() > 0
+                            ? ((double) Decompiler.totalTotal(oneRed)) / ((double) oneRed.size())
+                            : 0;
+
+                    ArrayList<TeamMatch> twoRed = Decompiler.getMatches(red.getTeam2(), l);
+                    double twopointsRed = twoRed.size() > 0
+                            ? ((double) Decompiler.totalTotal(twoRed)) / ((double) twoRed.size())
+                            : 0;
+
+                    ArrayList<TeamMatch> threeRed = Decompiler.getMatches(red.getTeam3(), l);
+                    double threepointsRed = threeRed.size() > 0
+                            ? ((double) Decompiler.totalTotal(threeRed)) / ((double) threeRed.size())
+                            : 0;
+
+                    double redAllianceScore = onepointsRed + twopointsRed + threepointsRed;
+
+                    System.out.println(match
+                            + " Red ("
+                            + red.getTeam1() + ", " + red.getTeam2() + ", " + red.getTeam3() + ") - "
+                            + redAllianceScore
+                            + " Blue ("
+                            + blue.getTeam1() + ", " + blue.getTeam2() + ", " + blue.getTeam3() + ")- "
+                            + blueAllianceScore);
+
+                    for (TeamMatch tm : l) {
+                        if (tm.getMatch().equals(match)) {
+                            if (tm.getMatchResult() == TeamMatch.MatchResult.Loss) {
+                                if (tm.getTeam().equals(blue.getTeam1())
+                                        || tm.getTeam().equals(blue.getTeam2())
+                                        || tm.getTeam().equals(blue.getTeam3())) {
+                                    redWon = true;
+                                }
+                                if (tm.getTeam().equals(red.getTeam1())
+                                        || tm.getTeam().equals(red.getTeam2())
+                                        || tm.getTeam().equals(red.getTeam3())) {
+                                    blueWon = true;
+                                }
+                            } else if (tm.getMatchResult() == TeamMatch.MatchResult.Win) {
+                                if (tm.getTeam().equals(blue.getTeam1())
+                                        || tm.getTeam().equals(blue.getTeam2())
+                                        || tm.getTeam().equals(blue.getTeam3())) {
+                                    blueWon = true;
+                                }
+                                if (tm.getTeam().equals(red.getTeam1())
+                                        || tm.getTeam().equals(red.getTeam2())
+                                        || tm.getTeam().equals(red.getTeam3())) {
+                                    redWon = true;
+                                }
+                            }
+                        }
+                    }
+
+                    if (blueWon || blueAllianceScore > redAllianceScore) {
+                        tally.put(blue.getTeam1(), tally.get(blue.getTeam1()) + 2);
+                        tally.put(blue.getTeam2(), tally.get(blue.getTeam2()) + 2);
+                        tally.put(blue.getTeam3(), tally.get(blue.getTeam3()) + 2);
+                    } else if (redWon || redAllianceScore > blueAllianceScore) {
+                        tally.put(red.getTeam1(), tally.get(red.getTeam1()) + 2);
+                        tally.put(red.getTeam2(), tally.get(red.getTeam2()) + 2);
+                        tally.put(red.getTeam3(), tally.get(red.getTeam3()) + 2);
+                    } else {
+                        tally.put(blue.getTeam1(), tally.get(blue.getTeam1()) + 1);
+                        tally.put(blue.getTeam2(), tally.get(blue.getTeam2()) + 1);
+                        tally.put(blue.getTeam3(), tally.get(blue.getTeam3()) + 1);
+                        tally.put(red.getTeam1(), tally.get(red.getTeam1()) + 1);
+                        tally.put(red.getTeam2(), tally.get(red.getTeam2()) + 1);
+                        tally.put(red.getTeam3(), tally.get(red.getTeam3()) + 1);
+                    }
+                }
+
+                StringBuilder builder = new StringBuilder();
+                for (Team t : new TreeMap<>(tally).keySet()) {
+                    builder.append(t).append(',').append(tally.get(t)).append('\n');
+                }
+                System.out.println(builder);
+                File output = new File(Scouter.scoutingDir + "Predictions in " + matchListName + ".csv");
+                try (FileOutputStream fileOutputStream = new FileOutputStream(output)) {
+                    output.getParentFile().mkdirs();
+                    output.createNewFile();
+                    fileOutputStream.write(builder.toString().getBytes());
+                    System.out.println("Wrote to " + output.getPath());
+                } catch (IOException ex) {
+                    Scouter.showErr(ex);
+                }
+            }
+        });
 
         JMenuItem version = new JMenuItem("Version");
-        version.addActionListener(new ActionListener() {
+
+        version.addActionListener(
+                new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(Scouter.getMain(), "Version " + Scouter.serialVersionUID);
@@ -152,19 +351,29 @@ public final class MainWindow extends JFrame {
         });
 
         file.add(save);
+        file.add(saveTo);
         file.add(decompile);
         edit.add(newMatch);
         edit.add(removeMatch);
-        edit.add(parse);
+        edit.add(parseQuals);
+        edit.add(parseElims);
+        stats.add(predict);
         about.add(version);
-
         bar.add(file);
         bar.add(edit);
+        bar.add(stats);
         bar.add(about);
-
         setJMenuBar(bar);
-
         updateMatches();
+        add(pane);
+        pack();
+        setLocationRelativeTo(null);
+    }
+
+    @Override
+    public void pack() {
+        super.pack();
+        setSize(600, 500);
     }
 
     private void updateMatches() {
@@ -238,8 +447,8 @@ public final class MainWindow extends JFrame {
                 buttons[x].addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        ScoutView s = new ScoutView(teams[index], matchData[index]);
-                        s.setVisible(true);
+                        scoutView = new ScoutView(teams[index], matchData[index]);
+                        scoutView.setVisible(true);
                     }
                 });
             }
@@ -257,15 +466,13 @@ public final class MainWindow extends JFrame {
             panel.add(buttons[5]);
         }
 
-        add(pane);
         pack();
-        setLocationRelativeTo(null);
     }
 
     public Set<Match> getMatchList() {
         return matches.keySet();
     }
-    
+
     public ArrayList<TeamMatch> getAllMatches() {
         ArrayList<TeamMatch> all = new ArrayList<>();
         for (ArrayList<TeamMatch> m : matches.values()) {

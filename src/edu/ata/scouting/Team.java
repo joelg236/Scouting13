@@ -3,7 +3,7 @@ package edu.ata.scouting;
 // Immutable
 import java.io.Serializable;
 
-public final class Team implements Serializable {
+public final class Team implements Serializable, Comparable<Team> {
 
     private static final long serialVersionUID = Scouter.serialVersionUID;
     public static final String NO_NAME = "No Name";
@@ -34,6 +34,11 @@ public final class Team implements Serializable {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public int compareTo(Team o) {
+        return Integer.compare(teamNumber, o.teamNumber);
     }
 
     @Override
