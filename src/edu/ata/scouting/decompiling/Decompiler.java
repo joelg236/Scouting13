@@ -54,22 +54,16 @@ public final class Decompiler {
     }
 
     public static String getRobotType(ArrayList<TeamMatch> matches) {
-        boolean off = false, def = false;
+        ArrayList<TeamMatch.RobotType> list = new ArrayList<>();
         for (TeamMatch match : matches) {
-            if (match.getRobotType() == TeamMatch.RobotType.Offensive) {
-                off = true;
-            } else if (match.getRobotType() == TeamMatch.RobotType.Defensive) {
-                def = true;
+            if (!list.contains(match.getRobotType())) {
+                list.add(match.getRobotType());
             }
         }
-        if (off && !def) {
-            return "Offense";
-        } else if (!off && def) {
-            return "Defense";
-        } else if(off && def) {
-            return "Both";
-        } else {
+        if (list.isEmpty()) {
             return "None";
+        } else {
+            return list.toString().replace("[", "").replace("]", "");
         }
     }
 
@@ -436,19 +430,19 @@ public final class Decompiler {
         }
         return losses;
     }
-    
+
     public static double drivetrainRating(ArrayList<TeamMatch> matches) {
         int sum = 0;
-        for(TeamMatch t : matches) {
+        for (TeamMatch t : matches) {
             sum += t.getDrivetrainRating();
         }
         return ((double) sum) / ((double) matches.size());
     }
-    
+
     public List<TeamMatch> getMatches() {
         return matches;
     }
-    
+
     public List<Team> getTeams() {
         return teams;
     }
@@ -477,7 +471,7 @@ public final class Decompiler {
         StringBuilder builder = new StringBuilder("Match,Team,Match Result,Total Points,"
                 + "Auto Points,Auto Discs,Most Common Auto Shot,Teleop Points,"
                 + "Most Common Teleop Shot,Climb Points,Foul Points,Ground Intake,"
-                + "Feeder Station,Drivetrain Rating,Robot Type,Shooter Type,Starting Position" 
+                + "Feeder Station,Drivetrain Rating,Robot Type,Shooter Type,Starting Position"
                 + System.lineSeparator());
         for (TeamMatch tm : matches) {
             builder.append(QUOTE).append(tm.getMatch()).append(QUOTE).append(COMMA);

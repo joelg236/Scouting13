@@ -132,7 +132,8 @@ public final class TeamMatch implements Serializable, Comparable<TeamMatch> {
 
     public static enum RobotType {
 
-        Unknown, Offensive, Defensive
+        Unknown, FullCourtShooter, FeederStationCycler, GroundCycler, GroundAndFeederCycler,
+        Blocker
     }
 
     public static enum StartingPosition {
