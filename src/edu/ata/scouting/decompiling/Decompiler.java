@@ -437,12 +437,12 @@ public final class Decompiler {
         return losses;
     }
     
-    public static int drivetrainRating(ArrayList<TeamMatch> matches) {
+    public static double drivetrainRating(ArrayList<TeamMatch> matches) {
         int sum = 0;
         for(TeamMatch t : matches) {
             sum += t.getDrivetrainRating();
         }
-        return Math.round((float) (((double) sum) / ((double) matches.size())));
+        return ((double) sum) / ((double) matches.size());
     }
     
     public List<TeamMatch> getMatches() {

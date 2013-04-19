@@ -461,6 +461,7 @@ public final class ScoutView extends JDialog {
     private final class RobotNotes extends JPanel {
 
         private JComboBox<TeamMatch.RobotType> robotType = new RobotType();
+        private JComboBox<TeamMatch.AutoDiscCount> discCount = new AutoDiscs();
         private JComboBox<TeamMatch.ShooterType> shooterType = new ShooterType();
         private JSlider drivetrainRating = new DrivetrainRating();
 
@@ -469,6 +470,8 @@ public final class ScoutView extends JDialog {
             JLabel robotTypeLabel = new JLabel("Robot Type");
             robotTypeLabel.setFont(robotTypeLabel.getFont().deriveFont(Font.BOLD, 22));
             robotTypeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            JLabel discCountLabel = new JLabel("Auto Discs");
+            discCountLabel.setHorizontalAlignment(SwingConstants.CENTER);
             JLabel drivetrainRatingLabel = new JLabel("Drivetrain rating");
             drivetrainRatingLabel.setFont(robotTypeLabel.getFont());
             drivetrainRatingLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -479,6 +482,7 @@ public final class ScoutView extends JDialog {
             teamNotesLabel.setFont(matchNotesLabel.getFont());
             teamNotesLabel.setHorizontalAlignment(SwingConstants.CENTER);
             robotType.setSelectedItem(match.getRobotType());
+            discCount.setSelectedItem(match.getAutoDiscCount());
             shooterType.setSelectedItem(match.getShooterType());
             ground.setHorizontalAlignment(SwingConstants.RIGHT);
             matchNotes.setBorder(new BevelBorder(BevelBorder.LOWERED));
@@ -491,10 +495,12 @@ public final class ScoutView extends JDialog {
             add(drivetrainRatingLabel, factory.setY(2).setX(0).setWidth(2));
             add(drivetrainRating, factory.setY(3));
             add(robotType, factory.setY(4));
-            add(shooterType, factory.setY(5));
-            add(matchNotesLabel, factory.setY(6).setX(0).setWidth(1));
+            add(discCountLabel, factory.setY(5));
+            add(discCount, factory.setY(6));
+            add(shooterType, factory.setY(7));
+            add(matchNotesLabel, factory.setY(8).setX(0).setWidth(1));
             add(teamNotesLabel, factory.setX(1));
-            add(matchNotes, factory.setY(7).setX(0));
+            add(matchNotes, factory.setY(9).setX(0));
             add(teamNotes, factory.setX(1));
         }
 
@@ -510,6 +516,22 @@ public final class ScoutView extends JDialog {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     match.setRobotType((TeamMatch.RobotType) getSelectedItem());
+                }
+            }
+        }
+
+        private class AutoDiscs extends JComboBox<TeamMatch.AutoDiscCount> {
+
+            public AutoDiscs() {
+                super(TeamMatch.AutoDiscCount.values());
+                addActionListener(new SetAutoDiscs());
+            }
+
+            private class SetAutoDiscs implements ActionListener {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    match.setAutoDiscCount((TeamMatch.AutoDiscCount) getSelectedItem());
                 }
             }
         }
