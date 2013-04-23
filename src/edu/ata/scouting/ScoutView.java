@@ -50,18 +50,18 @@ public final class ScoutView extends JDialog {
     private double climbTime = 0;
 
     public ScoutView(Team team, MatchData match) {
-        super(Scouter.getMain(), match.toString());
+        super(Scouter.getMain(), match + " - " + team);
         this.match = match;
         this.team = team;
         this.matchNotes = new JTextArea(this.match.getNotes().get(TeamMatch.NoteType.MatchNote));
         this.teamNotes = new JTextArea(this.match.getNotes().get(TeamMatch.NoteType.TeamNote));
-        this.ground = new JCheckBox("Ground Pickup", this.match.getIntakes().contains(TeamMatch.Intake.GroundPickup));
-        this.feeder = new JCheckBox("Feeder Station", this.match.getIntakes().contains(TeamMatch.Intake.FeederStation));
+        this.ground = new JCheckBox("Ground Pickup", match.getIntakes().contains(TeamMatch.Intake.GroundPickup));
+        this.feeder = new JCheckBox("Feeder Station", match.getIntakes().contains(TeamMatch.Intake.FeederStation));
         setRootPane(new JRootPane());
         setRootPaneCheckingEnabled(true);
         setLayout(LayoutFactory.createLayout());
 
-        JLabel title = new JLabel(this.match.toString());
+        JLabel title = new JLabel(match + " - " + team);
         title.setFont(title.getFont().deriveFont(Font.BOLD, 36));
         title.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -626,19 +626,19 @@ public final class ScoutView extends JDialog {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    if(match.getStartingPosition() == TeamMatch.StartingPosition.Unknown) {
+                    if (match.getStartingPosition() == TeamMatch.StartingPosition.Unknown) {
                         Scouter.showErr(new IllegalStateException("Enter a starting position"));
                         return;
                     }
-                    if(match.getMatchResult() == TeamMatch.MatchResult.Unknown) {
+                    if (match.getMatchResult() == TeamMatch.MatchResult.Unknown) {
                         Scouter.showErr(new IllegalStateException("Enter the match result (win/loss)"));
                         return;
                     }
-                    if(match.getRobotType() == TeamMatch.RobotType.Unknown) {
+                    if (match.getRobotType() == TeamMatch.RobotType.Unknown) {
                         Scouter.showErr(new IllegalStateException("Enter the robot type"));
                         return;
                     }
-                    
+
                     if (ground.isSelected()) {
                         match.addIntake(TeamMatch.Intake.GroundPickup);
                     } else {
