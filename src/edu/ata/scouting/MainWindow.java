@@ -327,7 +327,7 @@ public final class MainWindow extends JFrame {
                     }
                 }
 
-                StringBuilder builder = new StringBuilder();
+                StringBuilder builder = new StringBuilder("Team,QS\n");
                 for (Team t : new TreeMap<>(tally).keySet()) {
                     builder.append(t).append(',').append(tally.get(t)).append('\n');
                 }
