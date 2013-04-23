@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -17,7 +18,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.TreeMap;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -35,6 +38,7 @@ import javax.swing.SwingConstants;
 
 public final class MainWindow extends JFrame {
 
+    private Team[] ignoredTeams;
     private final HashMap<Match, ArrayList<TeamMatch>> matches = new HashMap<>();
     private final JPanel panel = new JPanel(new GridLayout(0, 8));
     private final JScrollPane pane = new JScrollPane(panel);
@@ -184,7 +188,7 @@ public final class MainWindow extends JFrame {
                 }
             }
         });
-        
+
         JMenuItem parseElims = new JMenuItem("Parse from web (Elims)");
         parseElims.addActionListener(
                 new ActionListener() {
@@ -444,13 +448,55 @@ public final class MainWindow extends JFrame {
             for (int x = 0; x < 6; x++) {
                 final int index = x;
                 buttons[x].setForeground(Color.WHITE);
-                buttons[x].addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        scoutView = new ScoutView(teams[index], matchData[index]);
-                        scoutView.setVisible(true);
-                    }
-                });
+                List<Team> ignored = Arrays.asList(ignoredTeams);
+                boolean ignore = false;
+                switch (x) {
+                    case (0):
+                        if (ignored.contains(current.getBlue().getTeam1())) {
+                            buttons[x].setBackground(Color.BLACK);
+                            ignore = true;
+                        }
+                        break;
+                    case (1):
+                        if (ignored.contains(current.getBlue().getTeam2())) {
+                            buttons[x].setBackground(Color.BLACK);
+                            ignore = true;
+                        }
+                        break;
+                    case (2):
+                        if (ignored.contains(current.getBlue().getTeam3())) {
+                            buttons[x].setBackground(Color.BLACK);
+                            ignore = true;
+                        }
+                        break;
+                    case (3):
+                        if (ignored.contains(current.getRed().getTeam1())) {
+                            buttons[x].setBackground(Color.BLACK);
+                            ignore = true;
+                        }
+                        break;
+                    case (4):
+                        if (ignored.contains(current.getRed().getTeam2())) {
+                            buttons[x].setBackground(Color.BLACK);
+                            ignore = true;
+                        }
+                        break;
+                    case (5):
+                        if (ignored.contains(current.getRed().getTeam3())) {
+                            buttons[x].setBackground(Color.BLACK);
+                            ignore = true;
+                        }
+                        break;
+                }
+                if (!ignore) {
+                    buttons[x].addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            scoutView = new ScoutView(teams[index], matchData[index]);
+                            scoutView.setVisible(true);
+                        }
+                    });
+                }
             }
 
             JLabel score = new JLabel(blue + " - " + red);
@@ -508,7 +554,7 @@ public final class MainWindow extends JFrame {
         File dir = new File(Scouter.scoutingDir);
         if (dir.exists() && dir.listFiles() != null) {
             for (File f : dir.listFiles()) {
-                if (f.isFile() && !f.getPath().contains(".csv")) {
+                if (f.isFile() && !f.getPath().contains(".")) {
                     try (ObjectInputStream stream = new ObjectInputStream(new FileInputStream(f))) {
                         Object o = stream.readObject();
 
@@ -554,6 +600,24 @@ public final class MainWindow extends JFrame {
                     }
                 }
             }
+        }
+
+        File ignored = new File(Scouter.scoutingDir + "ignore.txt");
+        try {
+            String ignore = new Scanner(ignored).useDelimiter("\\A").next();
+            StringTokenizer tokenizer = new StringTokenizer(ignore, ",");
+            ArrayList<Team> teams = new ArrayList<>();
+            while (tokenizer.hasMoreElements()) {
+                try {
+                    int team = Integer.parseInt(tokenizer.nextToken());
+                    teams.add(new Team(team));
+                } catch (NumberFormatException ex) {
+                }
+            }
+            ignoredTeams = new Team[teams.size()];
+            teams.toArray(ignoredTeams);
+        } catch (FileNotFoundException ex) {
+            ignoredTeams = new Team[0];
         }
     }
 }
