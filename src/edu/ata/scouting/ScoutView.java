@@ -626,6 +626,19 @@ public final class ScoutView extends JDialog {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
+                    if(match.getStartingPosition() == TeamMatch.StartingPosition.Unknown) {
+                        Scouter.showErr(new IllegalStateException("Enter a starting position"));
+                        return;
+                    }
+                    if(match.getMatchResult() == TeamMatch.MatchResult.Unknown) {
+                        Scouter.showErr(new IllegalStateException("Enter the match result (win/loss)"));
+                        return;
+                    }
+                    if(match.getRobotType() == TeamMatch.RobotType.Unknown) {
+                        Scouter.showErr(new IllegalStateException("Enter the robot type"));
+                        return;
+                    }
+                    
                     if (ground.isSelected()) {
                         match.addIntake(TeamMatch.Intake.GroundPickup);
                     } else {

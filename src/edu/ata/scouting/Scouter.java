@@ -21,7 +21,13 @@ public class Scouter {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
+                if (getMain().getScoutView() != null) {
+                    getMain().getScoutView().setAlwaysOnTop(false);
+                }
                 JOptionPane.showMessageDialog(getMain(), t);
+                if (getMain().getScoutView() != null) {
+                    getMain().getScoutView().setAlwaysOnTop(true);
+                }
             }
         });
         t.printStackTrace(System.err);

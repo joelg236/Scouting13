@@ -515,6 +515,10 @@ public final class MainWindow extends JFrame {
         pack();
     }
 
+    public ScoutView getScoutView() {
+        return scoutView;
+    }
+
     public Set<Match> getMatchList() {
         return matches.keySet();
     }
