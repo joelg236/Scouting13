@@ -380,7 +380,7 @@ public final class MainWindow extends JFrame {
         setSize(600, 500);
     }
 
-    private void updateMatches() {
+    public void updateMatches() {
         panel.removeAll();
 
         Set<Match> m = matches.keySet();
@@ -532,18 +532,18 @@ public final class MainWindow extends JFrame {
         updateMatches();
     }
 
-    public void putMatch(Team team, MatchData data) {
+    public void putMatch(TeamMatch data) {
         ArrayList<TeamMatch> m = matches.get(data.getMatch());
         ArrayList<TeamMatch> toRemove = new ArrayList<>();
         for (TeamMatch a : m) {
-            if (a.getTeam().equals(team)) {
+            if (a.getTeam().equals(data.getTeam())) {
                 toRemove.add(a);
             }
         }
         for (TeamMatch a : toRemove) {
             m.remove(a);
         }
-        matches.get(data.getMatch()).add(new TeamMatch(team, data));
+        matches.get(data.getMatch()).add(data);
         updateMatches();
     }
 

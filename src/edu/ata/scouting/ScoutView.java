@@ -53,15 +53,15 @@ public final class ScoutView extends JDialog {
         super(Scouter.getMain(), match.toString());
         this.match = match;
         this.team = team;
-        this.matchNotes = new JTextArea(match.getNotes().get(TeamMatch.NoteType.MatchNote));
-        this.teamNotes = new JTextArea(match.getNotes().get(TeamMatch.NoteType.TeamNote));
-        this.ground = new JCheckBox("Ground Pickup", match.getIntakes().contains(TeamMatch.Intake.GroundPickup));
-        this.feeder = new JCheckBox("Feeder Station", match.getIntakes().contains(TeamMatch.Intake.FeederStation));
+        this.matchNotes = new JTextArea(this.match.getNotes().get(TeamMatch.NoteType.MatchNote));
+        this.teamNotes = new JTextArea(this.match.getNotes().get(TeamMatch.NoteType.TeamNote));
+        this.ground = new JCheckBox("Ground Pickup", this.match.getIntakes().contains(TeamMatch.Intake.GroundPickup));
+        this.feeder = new JCheckBox("Feeder Station", this.match.getIntakes().contains(TeamMatch.Intake.FeederStation));
         setRootPane(new JRootPane());
         setRootPaneCheckingEnabled(true);
         setLayout(LayoutFactory.createLayout());
 
-        JLabel title = new JLabel(match.toString());
+        JLabel title = new JLabel(this.match.toString());
         title.setFont(title.getFont().deriveFont(Font.BOLD, 36));
         title.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -638,7 +638,7 @@ public final class ScoutView extends JDialog {
                     }
                     match.setNote(TeamMatch.NoteType.MatchNote, matchNotes.getText());
                     match.setNote(TeamMatch.NoteType.TeamNote, teamNotes.getText());
-                    Scouter.getMain().putMatch(team, match);
+                    Scouter.getMain().putMatch(new TeamMatch(team, match));
                     dispose();
                 }
             }
@@ -655,6 +655,8 @@ public final class ScoutView extends JDialog {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
+                    // Gets rid of persistence of data
+                    Scouter.getMain().updateMatches();
                     dispose();
                 }
             }
